@@ -24,7 +24,7 @@ export default function Dashboard() {
 
   const postTweet = async (tweet: Tweet) => {
     try {
-      const response = await fetch("http://localhost:5000/post-tweet", {
+      const response = await fetch("https://tweet-mindless.onrender.com/post-tweet", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -53,7 +53,7 @@ export default function Dashboard() {
     if (!prompt) return toast({ title: "Error", description: "Enter a prompt!", variant: "destructive" });
 
     try {
-      const response = await fetch("http://localhost:5000/generate-tweets", {
+      const response = await fetch("https://tweet-mindless.onrender.com/generate-tweets", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
