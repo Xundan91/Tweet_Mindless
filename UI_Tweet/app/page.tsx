@@ -13,7 +13,7 @@ export default function Home() {
           <div className="flex items-center justify-between">
             <Link href="/" className="text-xl font-bold flex items-center gap-2">
               <Twitter className="h-6 w-6 text-primary" />
-              <span>Twitter Agent</span>
+              <span>ViralxAgent</span>
             </Link>
             <div className="flex items-center space-x-6">
               <Link href="#features" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Features</Link>
@@ -38,7 +38,7 @@ export default function Home() {
               <span>Powered by Advanced AI Technology</span>
             </div>
             <h1 className="text-100xl md:text-6xl font-bold tracking-tight mb-8 bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/50">
-              Your Twitter Game,
+              Viral Twitter Game,
               <br />
               Automated & Enhanced
             </h1>

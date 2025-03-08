@@ -16,8 +16,7 @@ interface Tweet {
 }
 
 export default function Dashboard() {
-  const { toast } = useToast(); // Use the useToast hook
-
+  const { toast } = useToast(); 
   const [tweets, setTweets] = useState<Tweet[]>([]);
   const [tone, setTone] = useState("casual");
   const [prompt, setPrompt] = useState("");
