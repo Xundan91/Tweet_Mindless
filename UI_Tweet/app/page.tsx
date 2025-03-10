@@ -20,8 +20,8 @@ export default function Home() {
               <Link href="#pricing" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Pricing</Link>
               <Link href="#contact" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Contact</Link>
               <ThemeToggle />
-              <Link href="/dashboard">
-                <Button>Get Started</Button>
+              <Link href="/login">
+                <Button>Login</Button>
               </Link>
             </div>
           </div>
@@ -65,11 +65,11 @@ export default function Home() {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             <div>
-              <div className="text-4xl font-bold mb-2">50K+</div>
+              <div className="text-4xl font-bold mb-2">1K+</div>
               <div className="text-muted-foreground">Active Users</div>
             </div>
             <div>
-              <div className="text-4xl font-bold mb-2">2M+</div>
+              <div className="text-4xl font-bold mb-2">1k+</div>
               <div className="text-muted-foreground">Tweets Generated</div>
             </div>
             <div>
@@ -156,7 +156,7 @@ export default function Home() {
                   <span>Manual posting only</span>
                 </li>
               </ul>
-              <Button className="w-full" variant="outline">Get Started</Button>
+              <Button className="w-full" variant="outline">Login</Button>
             </div>
             
             <div className="bg-card p-8 rounded-xl border-2 border-primary relative transform hover:scale-105 transition-all">
