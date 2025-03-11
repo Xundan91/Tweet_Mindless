@@ -8,15 +8,12 @@ import fs from "fs";
 import path from "path";
 import { v4 as uuidv4 } from "uuid";
 
-// Configure environment variables
 dotenv.config();
 
-// Initialize express app
 const app = express();
 app.use(express.json());
 app.use(cors());
 
-// Configure multer for file uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const uploadDir = path.join(__dirname, "uploads");
@@ -43,7 +40,6 @@ const upload = multer({
   }
 });
 
-// API keys and clients
 const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
@@ -60,7 +56,6 @@ const encodeImageToBase64 = (imagePath: string): string => {
   return imageBuffer.toString('base64');
 };
 
-// API Endpoints
 app.post("/generate-tweets", upload.single('image'), async (req:any, res:any) => {
   try {
     const prompt = req.body.prompt;
@@ -215,6 +210,7 @@ app.post("/analyze-tweet", upload.single("image"), async (req: any, res: any) =>
     let requestData: any = { contents: [{ parts: [{ text: systemPrompt }] }] };
 
     // If image is provided, encode it and include in the request
+    
     if (req.file) {
       const imageBase64 = encodeImageToBase64(req.file.path);
       const mimeType = req.file.mimetype;

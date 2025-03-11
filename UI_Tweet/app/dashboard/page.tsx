@@ -1,12 +1,12 @@
 "use client"
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar } from "@/components/ui/avatar";
-import { Bot, Clock, Send, Calendar, Sparkles, BarChart, Edit2, ChevronRight, Image, Smile, Globe2 } from "lucide-react";
+import { Bot, Clock, Send, Calendar, Sparkles, BarChart, Edit2, ChevronRight, Image as ImageIcon, Smile, Globe2, X } from "lucide-react";
 import { DashboardNav } from "@/components/dashboard-nav";
 import Link from "next/link";
 import { Toaster } from "@/components/ui/toaster";
@@ -49,23 +49,68 @@ interface TweetAnalysis {
 
 export default function Dashboard() {
   const { toast } = useToast();
-  const [tone, setTone] = useState("casual");
-  const [prompt, setPrompt] = useState("");
+  const [tone, setTone] = useState<string>("casual");
+  const [prompt, setPrompt] = useState<string>("");
   const [tweets, setTweets] = useState<Tweet[]>([]);
   const [editableContent, setEditableContent] = useState<string[]>([]);
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isGenerating, setIsGenerating] = useState<boolean>(false);
+  const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
   const [tweetAnalysis, setTweetAnalysis] = useState<TweetAnalysis | null>(null);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const analyzeFileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImageClick = (isAnalyzeTab = false) => {
+    if (isAnalyzeTab) {
+      if (analyzeFileInputRef.current) {
+        analyzeFileInputRef.current.click();
+      }
+    } else {
+      if (fileInputRef.current) {
+        fileInputRef.current.click();
+      }
+    }
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setSelectedImage(file);
+      
+      // Create preview URL
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewUrl(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const clearImage = () => {
+    setSelectedImage(null);
+    setPreviewUrl(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+    if (analyzeFileInputRef.current) {
+      analyzeFileInputRef.current.value = "";
+    }
+  };
 
   const postTweet = async (tweet: string) => {
     try {
       setIsGenerating(true);
+      
+      const formData = new FormData();
+      formData.append("text", tweet);
+      if (selectedImage) {
+        formData.append("image", selectedImage);
+      }
+
       const response = await fetch("https://tweet-mindless.onrender.com/post-tweet", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ text: tweet }),
+        body: formData,
       });
 
       if (!response.ok) throw new Error("Failed to post tweet");
@@ -98,12 +143,17 @@ export default function Dashboard() {
 
     try {
       setIsGenerating(true);
+      
+      const formData = new FormData();
+      formData.append("prompt", prompt);
+      formData.append("tone", tone);
+      if (selectedImage) {
+        formData.append("image", selectedImage);
+      }
+
       const response = await fetch("https://tweet-mindless.onrender.com/generate-tweets", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ prompt, tone }),
+        body: formData,
       });
 
       if (!response.ok) throw new Error("Failed to generate tweets");
@@ -125,7 +175,6 @@ export default function Dashboard() {
     }
   };
 
-
   const analyzeTweet = async (tweetText: string) => {
     if (!tweetText) {
       return toast({
@@ -137,13 +186,18 @@ export default function Dashboard() {
 
     setIsAnalyzing(true);
     try {
+      const formData = new FormData();
+      formData.append("text", tweetText);
+      formData.append("tone", tone);
+      if (selectedImage) {
+        formData.append("image", selectedImage);
+      }
+
       const response = await fetch("https://tweet-mindless.onrender.com/analyze-tweet", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ text: tweetText, tone }),
+        body: formData,
       });
+
 
       if (!response.ok) throw new Error("Failed to analyze tweet");
 
@@ -177,21 +231,21 @@ export default function Dashboard() {
       <main className="container mx-auto px-4 py-8">
         <Toaster />
         <div className="max-w-4xl mx-auto">
-          <div className="flex items-center justify-between mb-8">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
             <div>
-              <h1 className="text-3xl font-bold mb-2">Tweet Generator</h1>
+              <h1 className="text-2xl sm:text-3xl font-bold mb-2">Tweet Generator</h1>
               <p className="text-muted-foreground">Create engaging tweets with AI assistance</p>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4">
               <Link href="/dashboard/history">
                 <Button variant="outline" size="sm">
                   <Clock className="mr-2 h-4 w-4" />
-                  History
+                  <span className="hidden sm:inline">History</span>
                 </Button>
               </Link>
               <Button variant="outline" size="sm">
                 <Calendar className="mr-2 h-4 w-4" />
-                Schedule
+                <span className="hidden sm:inline">Schedule</span>
               </Button>
             </div>
           </div>
@@ -199,12 +253,12 @@ export default function Dashboard() {
           <Tabs defaultValue="generate" className="mb-8">
             <TabsList className="w-full flex gap-2 bg-transparent mb-8 p-1 border rounded-lg">
               <TabsTrigger value="generate" className="flex-1 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md transition-all">
-                <Bot className="mr-2 h-5 w-5" />
-                Generate
+                <Bot className="sm:mr-2 h-5 w-5" />
+                <span className="hidden sm:inline">Generate</span>
               </TabsTrigger>
               <TabsTrigger value="analyze" className="flex-1 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md transition-all">
-                <BarChart className="mr-2 h-5 w-5" />
-                Analyze
+                <BarChart className="sm:mr-2 h-5 w-5" />
+                <span className="hidden sm:inline">Analyze</span>
               </TabsTrigger>
             </TabsList>
 
@@ -212,52 +266,80 @@ export default function Dashboard() {
               <div>
                 <div className="space-y-6">
                   <Card className="border-2 border-primary/10">
-                    <CardContent className="p-6">
-                      <div className="flex items-start gap-4 mb-4">
-                        <Avatar className="h-10 w-10">
+                    <CardContent className="p-4 sm:p-6">
+                      <div className="flex flex-col sm:flex-row items-start gap-4 mb-4">
+                        <Avatar className="h-10 w-10 hidden sm:flex">
                           <img src="https://github.com/shadcn.png" alt="Profile" />
                         </Avatar>
-                        <div className="flex-1">
+                        <div className="flex-1 w-full">
                           <Textarea
                             placeholder="What would you like to tweet about?"
                             className="min-h-[120px] text-lg resize-none border-none focus-visible:ring-0 p-0 bg-transparent"
                             value={prompt}
                             onChange={(e) => setPrompt(e.target.value)}
                           />
-                          <div className="flex items-center gap-4 mt-4 border-t pt-4">
-                            <Button variant="ghost" size="sm">
-                              <Image className="h-5 w-5 text-primary" />
-                            </Button>
-                            <Button variant="ghost" size="sm">
-                              <Smile className="h-5 w-5 text-primary" />
-                            </Button>
-                            <Button variant="ghost" size="sm">
-                              <Globe2 className="h-5 w-5 text-primary" />
-                            </Button>
-                            <div className="ml-auto flex items-center gap-4">
-                              <div className="flex items-center gap-2">
+                          
+                          {previewUrl && (
+                            <div className="mt-4 relative rounded-lg overflow-hidden border">
+                              <img 
+                                src={previewUrl} 
+                                alt="Selected" 
+                                className="max-h-64 w-auto object-contain mx-auto"
+                              />
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                className="absolute top-2 right-2 p-1 h-8 w-8 bg-black/50 hover:bg-black/70 text-white rounded-full"
+                                onClick={clearImage}
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          )}
+                          
+                          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mt-4 border-t pt-4">
+                            <div className="flex items-center gap-2">
+                              <Button variant="ghost" size="sm" onClick={() => handleImageClick(false)}>
+                                <ImageIcon className="h-5 w-5 text-primary" />
+                              </Button>
+                              <input
+                                type="file"
+                                ref={fileInputRef}
+                                onChange={handleImageChange}
+                                accept="image/*"
+                                className="hidden"
+                              />
+                              <Button variant="ghost" size="sm">
+                                <Smile className="h-5 w-5 text-primary" />
+                              </Button>
+                              <Button variant="ghost" size="sm">
+                                <Globe2 className="h-5 w-5 text-primary" />
+                              </Button>
+                            </div>
+                            
+                            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full sm:ml-auto sm:justify-end">
+                              <div className="flex items-center gap-2 w-full sm:w-auto">
                                 <span className="text-sm font-medium">Tone:</span>
-                                <div className="w-32">
-
-
-                                <Select value={tone} onValueChange={setTone}>
-                                  <SelectTrigger className="h-8">
-                                    <SelectValue placeholder="Select tone" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="casual">🌟 Casual</SelectItem>
-                                    <SelectItem value="trending">🔥 Trending</SelectItem>
-                                    <SelectItem value="hinglish">🇮🇳 Hinglish</SelectItem>
-                                    <SelectItem value="funny">😄 Funny</SelectItem>
-                                    <SelectItem value="formal">👔 Formal</SelectItem>
-                                  </SelectContent>
-                                </Select>
+                                <div className="w-full sm:w-32">
+                                  <Select value={tone} onValueChange={setTone}>
+                                    <SelectTrigger className="h-8">
+                                      <SelectValue placeholder="Select tone" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="casual">🌟 Casual</SelectItem>
+                                      <SelectItem value="trending">🔥 Trending</SelectItem>
+                                      <SelectItem value="hinglish">🇮🇳 Hinglish</SelectItem>
+                                      <SelectItem value="funny">😄 Funny</SelectItem>
+                                      <SelectItem value="formal">👔 Formal</SelectItem>
+                                    </SelectContent>
+                                  </Select>
                                 </div>
                               </div>
                               <Button 
                                 size="sm" 
                                 onClick={generateTweet}
                                 disabled={isGenerating || !prompt}
+                                className="w-full sm:w-auto"
                               >
                                 {isGenerating ? (
                                   <>
@@ -282,12 +364,12 @@ export default function Dashboard() {
                     {tweets.length > 0 && <h2 className="text-xl font-semibold">Generated Tweets</h2>}
                     {tweets.map((tweet, index) => (
                       <Card key={tweet.id} className="group hover:border-primary/30 transition-all duration-300">
-                        <CardContent className="p-6">
-                          <div className="flex items-start gap-4">
-                            <Avatar className="h-10 w-10">
+                        <CardContent className="p-4 sm:p-6">
+                          <div className="flex flex-col sm:flex-row items-start gap-4">
+                            <Avatar className="h-10 w-10 hidden sm:flex">
                               <img src="https://github.com/shadcn.png" alt="Profile" />
                             </Avatar>
-                            <div className="flex-1">
+                            <div className="flex-1 w-full">
                               <div className="flex items-start justify-between gap-2 mb-1">
                                 <div>
                                   <span className="font-semibold">John Doe</span>
@@ -310,7 +392,16 @@ export default function Dashboard() {
                                   rows={3}
                                 />
                               </div>
-                              <div className="flex items-center gap-3 mt-4">
+                              {previewUrl && (
+                                <div className="mt-2 mb-4 rounded-lg overflow-hidden border">
+                                  <img 
+                                    src={previewUrl} 
+                                    alt="Tweet image" 
+                                    className="max-h-64 w-auto object-contain mx-auto"
+                                  />
+                                </div>
+                              )}
+                              <div className="flex flex-wrap items-center gap-3 mt-4">
                                 <Button 
                                   size="sm" 
                                   variant="default" 
@@ -339,50 +430,80 @@ export default function Dashboard() {
               <div>
                 <div className="space-y-6">
                   <Card className="border-2 border-primary/10">
-                    <CardContent className="p-6">
-                      <div className="flex items-start gap-4 mb-6">
-                        <Avatar className="h-10 w-10">
+                    <CardContent className="p-4 sm:p-6">
+                      <div className="flex flex-col sm:flex-row items-start gap-4 mb-6">
+                        <Avatar className="h-10 w-10 hidden sm:flex">
                           <img src="https://github.com/shadcn.png" alt="Profile" />
                         </Avatar>
-                        <div className="flex-1">
+                        <div className="flex-1 w-full">
                           <Textarea
                             placeholder="Enter a tweet to analyze..."
                             className="min-h-[120px] text-lg resize-none border-none focus-visible:ring-0 p-0 bg-transparent"
                             value={prompt}
                             onChange={(e) => setPrompt(e.target.value)}
                           />
-                          <div className="flex items-center gap-4 mt-4 border-t pt-4">
-                            <Button variant="ghost" size="sm">
-                              <Image className="h-5 w-5 text-primary" />
-                            </Button>
-                            <Button variant="ghost" size="sm">
-                              <Smile className="h-5 w-5 text-primary" />
-                            </Button>
-                            <Button variant="ghost" size="sm">
-                              <Globe2 className="h-5 w-5 text-primary" />
-                            </Button>
-                            <div className="ml-auto flex items-center gap-4">
-                              <div className="flex items-center gap-2">
+                          
+                          {previewUrl && (
+                            <div className="mt-4 relative rounded-lg overflow-hidden border">
+                              <img 
+                                src={previewUrl} 
+                                alt="Selected" 
+                                className="max-h-64 w-auto object-contain mx-auto"
+                              />
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                className="absolute top-2 right-2 p-1 h-8 w-8 bg-black/50 hover:bg-black/70 text-white rounded-full"
+                                onClick={clearImage}
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          )}
+                          
+                          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mt-4 border-t pt-4">
+                            <div className="flex items-center gap-2">
+                              <Button variant="ghost" size="sm" onClick={() => handleImageClick(true)}>
+                                <ImageIcon className="h-5 w-5 text-primary" />
+                              </Button>
+                              <input
+                                type="file"
+                                ref={analyzeFileInputRef}
+                                onChange={handleImageChange}
+                                accept="image/*"
+                                className="hidden"
+                              />
+                              <Button variant="ghost" size="sm">
+                                <Smile className="h-5 w-5 text-primary" />
+                              </Button>
+                              <Button variant="ghost" size="sm">
+                                <Globe2 className="h-5 w-5 text-primary" />
+                              </Button>
+                            </div>
+                            
+                            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full sm:ml-auto sm:justify-end">
+                              <div className="flex items-center gap-2 w-full sm:w-auto">
                                 <span className="text-sm font-medium">Tone:</span>
-                                <div className="w-32">
-                                <Select value={tone} onValueChange={setTone}>
-                                  <SelectTrigger className="h-8">
-                                    <SelectValue placeholder="Select tone" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="casual">🌟 Casual</SelectItem>
-                                    <SelectItem value="trending">🔥 Trending</SelectItem>
-                                    <SelectItem value="hinglish">🇮🇳 Hinglish</SelectItem>
-                                    <SelectItem value="funny">😄 Funny</SelectItem>
-                                    <SelectItem value="formal">👔 Formal</SelectItem>
-                                  </SelectContent>
-                                </Select>
+                                <div className="w-full sm:w-32">
+                                  <Select value={tone} onValueChange={setTone}>
+                                    <SelectTrigger className="h-8">
+                                      <SelectValue placeholder="Select tone" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="casual">🌟 Casual</SelectItem>
+                                      <SelectItem value="trending">🔥 Trending</SelectItem>
+                                      <SelectItem value="hinglish">🇮🇳 Hinglish</SelectItem>
+                                      <SelectItem value="funny">😄 Funny</SelectItem>
+                                      <SelectItem value="formal">👔 Formal</SelectItem>
+                                    </SelectContent>
+                                  </Select>
                                 </div>
                               </div>
                               <Button 
                                 size="sm"
                                 onClick={() => analyzeTweet(prompt)}
                                 disabled={isAnalyzing || !prompt}
+                                className="w-full sm:w-auto"
                               >
                                 {isAnalyzing ? (
                                   <>
@@ -406,10 +527,10 @@ export default function Dashboard() {
                   {tweetAnalysis && (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <Card>
-                        <CardHeader>
+                        <CardHeader className="p-4 sm:p-6">
                           <CardTitle className="text-lg">Engagement Metrics</CardTitle>
                         </CardHeader>
-                        <CardContent>
+                        <CardContent className="p-4 sm:p-6 pt-0">
                           <div className="space-y-4">
                             <div>
                               <div className="flex justify-between mb-2">
@@ -452,10 +573,10 @@ export default function Dashboard() {
                       </Card>
 
                       <Card>
-                        <CardHeader>
+                        <CardHeader className="p-4 sm:p-6">
                           <CardTitle className="text-lg">Predicted Performance</CardTitle>
                         </CardHeader>
-                        <CardContent>
+                        <CardContent className="p-4 sm:p-6 pt-0">
                           <div className="space-y-4">
                             <div className="flex justify-between items-center p-3 bg-primary/5 rounded-lg">
                               <span>Expected Likes</span>
@@ -483,21 +604,21 @@ export default function Dashboard() {
 
                   {tweetAnalysis && (
                     <Card>
-                      <CardHeader>
+                      <CardHeader className="p-4 sm:p-6">
                         <CardTitle className="text-lg">Optimization Suggestions</CardTitle>
                       </CardHeader>
-                      <CardContent>
+                      <CardContent className="p-4 sm:p-6 pt-0">
                         <div className="space-y-4">
                           {tweetAnalysis.optimizationSuggestions.map((suggestion, index) => (
-                            <div key={index} className="flex items-start gap-4 p-4 bg-primary/5 rounded-lg">
+                            <div key={index} className="flex flex-col sm:flex-row items-start gap-4 p-4 bg-primary/5 rounded-lg">
                               <div className="flex-1">
                                 <h4 className="font-semibold mb-1">{suggestion.title}</h4>
                                 <p className="text-muted-foreground">{suggestion.description}</p>
                               </div>
-                              <Button variant="outline" size="sm">
+                              {/* <Button variant="outline" size="sm" className="mt-2 sm:mt-0 w-full sm:w-auto">
                                 {suggestion.action}
                                 <ChevronRight className="ml-2 h-4 w-4" />
-                              </Button>
+                              </Button> */}
                             </div>
                           ))}
                         </div>
@@ -513,4 +634,3 @@ export default function Dashboard() {
     </div>
   );
 }
-
