@@ -16,8 +16,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { OptimizationSuggestion,PredictedPerformance,PredictedRange,EngagementMetrics,Tweet,TweetAnalysis } from "@/types/interface";
 import { tweetService } from "@/services/api";
 import { useImageUpload } from "@/hooks/useImageUpload";
-import {useKeyboardShortcuts} from "@/hooks/useKeyboardShortcuts"
-
 
 
 export default function Dashboard() {
@@ -30,8 +28,6 @@ export default function Dashboard() {
   const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
   const [tweetAnalysis, setTweetAnalysis] = useState<TweetAnalysis | null>(null);
   const analyzeFileInputRef = useRef<HTMLInputElement>(null);
-
-  
   
   
   const {selectedImage,previewUrl, fileInputRef , handleImageClick , handleImageChange , clearImage} = useImageUpload();
@@ -44,7 +40,7 @@ export default function Dashboard() {
       setIsGenerating(true);
       
       await tweetService.postTweet(tweet, selectedImage || undefined);
-
+      
       toast({
         title: "Tweet Posted!",
         description: "Your tweet was posted successfully.",
@@ -143,7 +139,7 @@ export default function Dashboard() {
                   <span className="hidden sm:inline">History</span>
                 </Button>
               </Link>
-          
+             
             </div>
           </div>
 

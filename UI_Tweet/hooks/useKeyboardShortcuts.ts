@@ -22,7 +22,8 @@ export const useKeyboardShortcuts = ({
   toggleEmojiPanel
 }: KeyboardShortcutsProps) => {
   // Handle Alt+Enter for generating/analyzing tweets
-  const handleAltEnter = useCallback((e: KeyboardEvent) => {
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    // Alt+Enter shortcut for generate/analyze
     if (e.altKey && e.key === 'Enter') {
       e.preventDefault();
       
@@ -32,31 +33,25 @@ export const useKeyboardShortcuts = ({
         analyzeTweet();
       }
     }
-  }, [activeTab, generateTweet, analyzeTweet]);
-
-  // Handle Windows+. (Period) for emoji panel
-  const handleEmojiShortcut = useCallback((e: KeyboardEvent) => {
-    // Check for Windows key (metaKey) + period
+    
+    // Windows/Command + . for emoji panel
     if ((e.metaKey || e.ctrlKey) && e.key === '.') {
       e.preventDefault();
-      
       if (toggleEmojiPanel) {
         toggleEmojiPanel();
       }
     }
-  }, [toggleEmojiPanel]);
+  }, [activeTab, generateTweet, analyzeTweet, toggleEmojiPanel]);
 
   useEffect(() => {
-    // Add event listeners
-    document.addEventListener('keydown', handleAltEnter);
-    document.addEventListener('keydown', handleEmojiShortcut);
+    // Add event listener
+    document.addEventListener('keydown', handleKeyDown);
     
-    // Clean up event listeners
+    // Clean up event listener
     return () => {
-      document.removeEventListener('keydown', handleAltEnter);
-      document.removeEventListener('keydown', handleEmojiShortcut);
+      document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [handleAltEnter, handleEmojiShortcut]);
+  }, [handleKeyDown]);
 };
 
 export default useKeyboardShortcuts;

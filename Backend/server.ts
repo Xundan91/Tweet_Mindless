@@ -132,29 +132,42 @@ Output only the tweets, each separated by a newline.Tweet should not look like b
 app.post("/post-tweet", upload.single('image'), async (req:any, res:any) => {
   try {
     const { text } = req.body;
+    const signatureText = "This tweet is from tweet.xundan.in";
+    
     if (!text) return res.status(400).json({ error: "Tweet text is required" });
 
-    let tweet;
+    let mainTweet;
+    let signatureTweet;
 
-    // Post tweet with or without media
+    // Post main tweet with or without media
     if (req.file) {
       // Upload media to Twitter
       const mediaId = await twitterClient.v1.uploadMedia(req.file.path);
       
-      // Post tweet with media
-      tweet = await twitterClient.v2.tweet(text, {
+      // Post main tweet with media
+      mainTweet = await twitterClient.v2.tweet(text, {
         media: { media_ids: [mediaId] }
       });
       
       // Clean up uploaded file
       fs.unlinkSync(req.file.path);
     } else {
-      // Post text-only tweet
-      tweet = await twitterClient.v2.tweet(text);
+      // Post text-only main tweet
+      mainTweet = await twitterClient.v2.tweet(text);
     }
 
-    console.log("Tweet posted successfully!", tweet);
-    res.json({ message: "Tweet posted successfully!", tweet });
+    // Always add a signature tweet as a reply to the main tweet
+    signatureTweet = await twitterClient.v2.reply(
+      signatureText,
+      mainTweet.data.id
+    );
+
+    console.log("Tweet posted successfully with signature!", { mainTweet, signatureTweet });
+    res.json({ 
+      message: "Tweet posted successfully with signature!", 
+      mainTweet: mainTweet.data,
+      signatureTweet: signatureTweet.data
+    });
   } catch (error) {
     console.error("Error posting tweet:", error);
     
@@ -166,6 +179,8 @@ app.post("/post-tweet", upload.single('image'), async (req:any, res:any) => {
     res.status(500).json({ error: "Error posting tweet" });
   }
 });
+
+
 
 app.post("/analyze-tweet", upload.single("image"), async (req: any, res: any) => {
   try {
