@@ -129,6 +129,38 @@ Output only the tweets, each separated by a newline.Tweet should not look like b
 });
 
 
+app.post("/post-tweet-paid", upload.single('image'), async (req:any, res:any) => {
+  try {
+    const { text } = req.body;
+    if (!text) return res.status(400).json({ error: "Tweet text is required" });
+
+    let tweet;
+
+    if (req.file) {
+      const mediaId = await twitterClient.v1.uploadMedia(req.file.path);
+      
+      tweet = await twitterClient.v2.tweet(text, {
+        media: { media_ids: [mediaId] }
+      });
+      
+      fs.unlinkSync(req.file.path);
+    } else {
+      tweet = await twitterClient.v2.tweet(text);
+    }
+
+    console.log("Tweet posted successfully!", tweet);
+    res.json({ message: "Tweet posted successfully!", tweet });
+  } catch (error) {
+    console.error("Error posting tweet:", error);
+    
+    if (req.file && fs.existsSync(req.file.path)) {
+      fs.unlinkSync(req.file.path);
+    }
+
+    res.status(500).json({ error: "Error posting tweet" });
+  }
+});
+
 app.post("/post-tweet", upload.single('image'), async (req:any, res:any) => {
   try {
     const { text } = req.body;
@@ -139,24 +171,18 @@ app.post("/post-tweet", upload.single('image'), async (req:any, res:any) => {
     let mainTweet;
     let signatureTweet;
 
-    // Post main tweet with or without media
     if (req.file) {
-      // Upload media to Twitter
       const mediaId = await twitterClient.v1.uploadMedia(req.file.path);
       
-      // Post main tweet with media
       mainTweet = await twitterClient.v2.tweet(text, {
         media: { media_ids: [mediaId] }
       });
       
-      // Clean up uploaded file
       fs.unlinkSync(req.file.path);
     } else {
-      // Post text-only main tweet
       mainTweet = await twitterClient.v2.tweet(text);
     }
 
-    // Always add a signature tweet as a reply to the main tweet
     signatureTweet = await twitterClient.v2.reply(
       signatureText,
       mainTweet.data.id
@@ -171,7 +197,6 @@ app.post("/post-tweet", upload.single('image'), async (req:any, res:any) => {
   } catch (error) {
     console.error("Error posting tweet:", error);
     
-    // Clean up uploaded image in case of error
     if (req.file && fs.existsSync(req.file.path)) {
       fs.unlinkSync(req.file.path);
     }
@@ -179,9 +204,6 @@ app.post("/post-tweet", upload.single('image'), async (req:any, res:any) => {
     res.status(500).json({ error: "Error posting tweet" });
   }
 });
-
-
-
 app.post("/analyze-tweet", upload.single("image"), async (req: any, res: any) => {
   try {
     const { text } = req.body;
