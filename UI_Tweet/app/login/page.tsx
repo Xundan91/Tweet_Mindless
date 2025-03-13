@@ -6,9 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
-import { LockKeyhole, UserCircle2 } from 'lucide-react';
+import { LockKeyhole, UserCircle2  } from 'lucide-react';
 import { LoadingButton } from '@/components/ui/loading-button';
-
 import Link from "next/link";
 
 
@@ -23,7 +22,7 @@ export default function Home() {
     setIsLoading(true);
 
     try {
-      const userResponse = await fetch('https://csi-tech-quiz.onrender.com/api/user/login', {
+      const userResponse = await fetch('http://localhost:3000/api/user/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -78,7 +77,7 @@ export default function Home() {
             >
               <UserCircle2 size={50} className="text-primary mb-2" />
             </motion.div>
-            <CardTitle className="text-2xl"> Tweet-X-Agent</CardTitle>
+            <CardTitle className="text-2xl">Tweet-X-Agent</CardTitle>
             <CardDescription>Enter your credentials to login</CardDescription>
           </CardHeader>
           <CardContent>
@@ -120,7 +119,8 @@ export default function Home() {
               <div className="mt-1">
                 <br />
               </div>
-            </div>
+              <button >GooGle</button>
+         </div>
           </CardContent>
         </Card>
       </motion.div>

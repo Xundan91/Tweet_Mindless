@@ -9,43 +9,12 @@ import { Avatar } from "@/components/ui/avatar";
 import { Bot, Clock, Send, Calendar, Sparkles, BarChart, Edit2, ChevronRight, Image as ImageIcon, Smile, Globe2, X } from "lucide-react";
 import { DashboardNav } from "@/components/dashboard-nav";
 import Link from "next/link";
+
 import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/hooks/use-toast"; 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { OptimizationSuggestion,PredictedPerformance,PredictedRange,EngagementMetrics,Tweet,TweetAnalysis } from "@/types/interface";
 
-interface Tweet {
-  id: number;
-  text: string;
-}
-
-interface EngagementMetrics {
-  viralProbability: number;
-  likeabilityScore: number;
-  retweetPotential: number;
-}
-
-interface PredictedRange {
-  min: number;
-  max: number;
-}
-
-interface PredictedPerformance {
-  expectedLikes: PredictedRange;
-  expectedRetweets: PredictedRange;
-  expectedComments: PredictedRange;
-}
-
-interface OptimizationSuggestion {
-  title: string;
-  description: string;
-  action: string;
-}
-
-interface TweetAnalysis {
-  engagementMetrics: EngagementMetrics;
-  predictedPerformance: PredictedPerformance;
-  optimizationSuggestions: OptimizationSuggestion[];
-}
 
 export default function Dashboard() {
   const { toast } = useToast();
@@ -60,7 +29,7 @@ export default function Dashboard() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const analyzeFileInputRef = useRef<HTMLInputElement>(null);
-
+  
   const handleImageClick = (isAnalyzeTab = false) => {
     if (isAnalyzeTab) {
       if (analyzeFileInputRef.current) {
@@ -78,7 +47,6 @@ export default function Dashboard() {
       const file = e.target.files[0];
       setSelectedImage(file);
       
-      // Create preview URL
       const reader = new FileReader();
       reader.onloadend = () => {
         setPreviewUrl(reader.result as string);
@@ -100,6 +68,7 @@ export default function Dashboard() {
 
   const postTweet = async (tweet: string) => {
     try {
+
       setIsGenerating(true);
       
       const formData = new FormData();
@@ -282,9 +251,9 @@ export default function Dashboard() {
                           {previewUrl && (
                             <div className="mt-4 relative rounded-lg overflow-hidden border">
                               <img 
-                                src={previewUrl} 
-                                alt="Selected" 
-                                className="max-h-64 w-auto object-contain mx-auto"
+                              src= {previewUrl}  
+                              alt=" Selected " 
+                              className=" max-h-64 w-auto object-contain mx-auto "
                               />
                               <Button 
                                 variant="ghost" 
@@ -464,7 +433,7 @@ export default function Dashboard() {
                           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mt-4 border-t pt-4">
                             <div className="flex items-center gap-2">
                               <Button variant="ghost" size="sm" onClick={() => handleImageClick(true)}>
-                                <ImageIcon className="h-5 w-5 text-primary" />
+                                <ImageIcon className="h-5 w-5 text-primary"/>
                               </Button>
                               <input
                                 type="file"
@@ -535,12 +504,12 @@ export default function Dashboard() {
                             <div>
                               <div className="flex justify-between mb-2">
                                 <span>Viral Probability</span>
-                                <span className="font-semibold">{tweetAnalysis.engagementMetrics.viralProbability}%</span>
+                                <span className="font-semibold">{tweetAnalysis.engagementMetrics.viralProbability*10}%</span>
                               </div>
                               <div className="h-2 bg-primary/20 rounded-full">
                                 <div 
                                   className="h-full bg-primary rounded-full" 
-                                  style={{ width: `${tweetAnalysis.engagementMetrics.viralProbability}%` }}
+                                  style={{ width: `${tweetAnalysis.engagementMetrics.viralProbability*10}%` }}
                                 ></div>
                               </div>
                             </div>
@@ -552,7 +521,7 @@ export default function Dashboard() {
                               <div className="h-2 bg-primary/20 rounded-full">
                                 <div 
                                   className="h-full bg-primary rounded-full" 
-                                  style={{ width: `${tweetAnalysis.engagementMetrics.likeabilityScore}%` }}
+                                  style={{ width: `${tweetAnalysis.engagementMetrics.likeabilityScore*10}%` }}
                                 ></div>
                               </div>
                             </div>

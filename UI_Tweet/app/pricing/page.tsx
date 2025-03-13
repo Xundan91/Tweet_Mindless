@@ -1,12 +1,16 @@
+"use client"; // If using App Router
+
 import { Button } from "@/components/ui/button";
 import { DashboardNav } from "@/components/dashboard-nav";
 import { Check } from "lucide-react";
 
 export default function Pricing() {
+  
+
   return (
     <div className="min-h-screen bg-background">
       <DashboardNav />
-      
+
       <main className="container mx-auto px-4 py-16">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold mb-4">Simple, Transparent Pricing</h1>
@@ -54,7 +58,10 @@ export default function Pricing() {
                 Limited auto-tweeting
               </li>
             </ul>
-            <Button className="w-full">Subscribe Now</Button>
+            {/* Integrate Razorpay here */}
+            <Button className="w-full">
+              Subscribe Now
+            </Button>
           </div>
 
           <div className="bg-card p-8 rounded-lg border">
@@ -74,7 +81,10 @@ export default function Pricing() {
                 Full automation
               </li>
             </ul>
-            <Button className="w-full" variant="outline">Subscribe Now</Button>
+            {/* Integrate Razorpay here */}
+            <Button className="w-full" variant="outline">
+              Subscribe Now
+            </Button>
           </div>
         </div>
       </main>

@@ -14,7 +14,8 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-const storage = multer.diskStorage({
+const storage = multer.diskStorage(
+  {
   destination: (req, file, cb) => {
     const uploadDir = path.join(__dirname, "uploads");
     if (!fs.existsSync(uploadDir)) {
@@ -67,7 +68,7 @@ app.post("/generate-tweets", upload.single('image'), async (req:any, res:any) =>
 
     let systemPrompt = `Generate exactly 4 engaging tweets in a ${tone} tone based on the following prompt: "${prompt}".  
 Each tweet should be concise, engaging, and suitable for posting on Twitter. Do not include any extra text, explanations, numbers, or formatting.  
-Output only the tweets, each separated by a newline.`;
+Output only the tweets, each separated by a newline.Tweet should not look like bot tweet its should look like tweet has been tweeted by real user not by bots `;
 
     let requestData: any = {
       contents: [{ parts: [{ text: systemPrompt }] }]
@@ -210,7 +211,7 @@ app.post("/analyze-tweet", upload.single("image"), async (req: any, res: any) =>
     let requestData: any = { contents: [{ parts: [{ text: systemPrompt }] }] };
 
     // If image is provided, encode it and include in the request
-    
+
     if (req.file) {
       const imageBase64 = encodeImageToBase64(req.file.path);
       const mimeType = req.file.mimetype;

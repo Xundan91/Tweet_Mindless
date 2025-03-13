@@ -23,7 +23,7 @@ export default function Home() {
     setIsLoading(true);
 
     try {
-      const userResponse = await fetch('https://csi-tech-quiz.onrender.com/api/user/login', {
+      const userResponse = await fetch('http://localhost:5000/api/user/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -134,13 +134,7 @@ export default function Home() {
                 <LockKeyhole  className="mr-2 h-4 w-4" /> Login
               </LoadingButton>
               </Link>
-            </div>
-            
-            
-
-            
-
-          
+            </div>          
           </CardContent>
         </Card>
       </motion.div>
