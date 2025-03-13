@@ -31,3 +31,29 @@ export interface TweetAnalysis {
     predictedPerformance: PredictedPerformance;
     optimizationSuggestions: OptimizationSuggestion[];
 }
+
+
+
+export interface TweetResponse{
+    tweets? : Tweet[];
+    [key:string]:any;
+}
+export interface AnalysisResponse{
+    engagementMetrics:{
+        viralProbability:number;
+        likeabilityScore : number;
+        retweetPotential :number;
+
+    }
+    predictictedPerformance:{
+        expectedLikes :{min:number , max :number}; 
+        expectedRetweet :{min:number , max :number}; 
+        expectedComments :{min:number , max :number}; 
+    }
+    optimizationSuggestions: Array<{
+        title :string;
+        description :string ;
+        action?:string;
+    }>;
+    [key:string]:any;
+}

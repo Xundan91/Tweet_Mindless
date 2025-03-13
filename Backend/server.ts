@@ -169,7 +169,7 @@ app.post("/post-tweet", upload.single('image'), async (req:any, res:any) => {
 
 app.post("/analyze-tweet", upload.single("image"), async (req: any, res: any) => {
   try {
-    const { text, tone } = req.body;
+    const { text } = req.body;
     if (!text) return res.status(400).json({ error: "Tweet text is required" });
 
     let systemPrompt = `

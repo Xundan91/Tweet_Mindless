@@ -14,6 +14,10 @@ import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/hooks/use-toast"; 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { OptimizationSuggestion,PredictedPerformance,PredictedRange,EngagementMetrics,Tweet,TweetAnalysis } from "@/types/interface";
+import { tweetService } from "@/services/api";
+import { useImageUpload } from "@/hooks/useImageUpload";
+import {useKeyboardShortcuts} from "@/hooks/useKeyboardShortcuts"
+
 
 
 export default function Dashboard() {
@@ -25,66 +29,22 @@ export default function Dashboard() {
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
   const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
   const [tweetAnalysis, setTweetAnalysis] = useState<TweetAnalysis | null>(null);
-  const [selectedImage, setSelectedImage] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const analyzeFileInputRef = useRef<HTMLInputElement>(null);
+
   
-  const handleImageClick = (isAnalyzeTab = false) => {
-    if (isAnalyzeTab) {
-      if (analyzeFileInputRef.current) {
-        analyzeFileInputRef.current.click();
-      }
-    } else {
-      if (fileInputRef.current) {
-        fileInputRef.current.click();
-      }
-    }
-  };
-
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setSelectedImage(file);
-      
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreviewUrl(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const clearImage = () => {
-    setSelectedImage(null);
-    setPreviewUrl(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
-    if (analyzeFileInputRef.current) {
-      analyzeFileInputRef.current.value = "";
-    }
-  };
+  
+  
+  const {selectedImage,previewUrl, fileInputRef , handleImageClick , handleImageChange , clearImage} = useImageUpload();
+  
+  const analyseImageUpload = useImageUpload();
 
   const postTweet = async (tweet: string) => {
     try {
 
       setIsGenerating(true);
       
-      const formData = new FormData();
-      formData.append("text", tweet);
-      if (selectedImage) {
-        formData.append("image", selectedImage);
-      }
+      await tweetService.postTweet(tweet, selectedImage || undefined);
 
-      const response = await fetch("https://tweet-mindless.onrender.com/post-tweet", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) throw new Error("Failed to post tweet");
-
-      await response.json();
       toast({
         title: "Tweet Posted!",
         description: "Your tweet was posted successfully.",
@@ -112,26 +72,11 @@ export default function Dashboard() {
 
     try {
       setIsGenerating(true);
+      const generateTweet = await tweetService.generateTweets(prompt,tone , selectedImage||undefined);
+      setTweets(generateTweet);
+      setEditableContent(generateTweet.map(tweet=>tweet.text));
       
-      const formData = new FormData();
-      formData.append("prompt", prompt);
-      formData.append("tone", tone);
-      if (selectedImage) {
-        formData.append("image", selectedImage);
-      }
 
-      const response = await fetch("https://tweet-mindless.onrender.com/generate-tweets", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) throw new Error("Failed to generate tweets");
-
-      const data = await response.json();
-      if (data.tweets) {
-        setTweets(data.tweets);
-        setEditableContent(data.tweets.map((tweet: Tweet) => tweet.text));
-      }
     } catch (error) {
       console.error("Error generating tweet:", error);
       toast({
@@ -155,22 +100,8 @@ export default function Dashboard() {
 
     setIsAnalyzing(true);
     try {
-      const formData = new FormData();
-      formData.append("text", tweetText);
-      formData.append("tone", tone);
-      if (selectedImage) {
-        formData.append("image", selectedImage);
-      }
-
-      const response = await fetch("https://tweet-mindless.onrender.com/analyze-tweet", {
-        method: "POST",
-        body: formData,
-      });
-
-
-      if (!response.ok) throw new Error("Failed to analyze tweet");
-
-      const analysisData = await response.json();
+      const analysisData = await tweetService.analyseTweet(tweetText , selectedImage||undefined);
+      
       setTweetAnalysis(analysisData);
       
       toast({
@@ -212,10 +143,7 @@ export default function Dashboard() {
                   <span className="hidden sm:inline">History</span>
                 </Button>
               </Link>
-              <Button variant="outline" size="sm">
-                <Calendar className="mr-2 h-4 w-4" />
-                <span className="hidden sm:inline">Schedule</span>
-              </Button>
+          
             </div>
           </div>
 
@@ -268,7 +196,7 @@ export default function Dashboard() {
                           
                           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mt-4 border-t pt-4">
                             <div className="flex items-center gap-2">
-                              <Button variant="ghost" size="sm" onClick={() => handleImageClick(false)}>
+                              <Button variant="ghost" size="sm" onClick={handleImageClick}>
                                 <ImageIcon className="h-5 w-5 text-primary" />
                               </Button>
                               <input
@@ -432,7 +360,7 @@ export default function Dashboard() {
                           
                           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mt-4 border-t pt-4">
                             <div className="flex items-center gap-2">
-                              <Button variant="ghost" size="sm" onClick={() => handleImageClick(true)}>
+                              <Button variant="ghost" size="sm" onClick={handleImageClick}>
                                 <ImageIcon className="h-5 w-5 text-primary"/>
                               </Button>
                               <input
@@ -451,23 +379,7 @@ export default function Dashboard() {
                             </div>
                             
                             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full sm:ml-auto sm:justify-end">
-                              <div className="flex items-center gap-2 w-full sm:w-auto">
-                                <span className="text-sm font-medium">Tone:</span>
-                                <div className="w-full sm:w-32">
-                                  <Select value={tone} onValueChange={setTone}>
-                                    <SelectTrigger className="h-8">
-                                      <SelectValue placeholder="Select tone" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      <SelectItem value="casual">🌟 Casual</SelectItem>
-                                      <SelectItem value="trending">🔥 Trending</SelectItem>
-                                      <SelectItem value="hinglish">🇮🇳 Hinglish</SelectItem>
-                                      <SelectItem value="funny">😄 Funny</SelectItem>
-                                      <SelectItem value="formal">👔 Formal</SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                </div>
-                              </div>
+
                               <Button 
                                 size="sm"
                                 onClick={() => analyzeTweet(prompt)}
@@ -516,7 +428,7 @@ export default function Dashboard() {
                             <div>
                               <div className="flex justify-between mb-2">
                                 <span>Likeability Score</span>
-                                <span className="font-semibold">{tweetAnalysis.engagementMetrics.likeabilityScore}%</span>
+                                <span className="font-semibold">{tweetAnalysis.engagementMetrics.likeabilityScore*10}%</span>
                               </div>
                               <div className="h-2 bg-primary/20 rounded-full">
                                 <div 
@@ -582,12 +494,12 @@ export default function Dashboard() {
                             <div key={index} className="flex flex-col sm:flex-row items-start gap-4 p-4 bg-primary/5 rounded-lg">
                               <div className="flex-1">
                                 <h4 className="font-semibold mb-1">{suggestion.title}</h4>
-                                <p className="text-muted-foreground">{suggestion.description}</p>
+                                <b className="text-muted-foreground">{suggestion.description}</b>
+                                <br></br>
+                                <br></br>
+                                <p className="text-muted-foreground">{suggestion.action}</p>
                               </div>
-                              {/* <Button variant="outline" size="sm" className="mt-2 sm:mt-0 w-full sm:w-auto">
-                                {suggestion.action}
-                                <ChevronRight className="ml-2 h-4 w-4" />
-                              </Button> */}
+                              
                             </div>
                           ))}
                         </div>
