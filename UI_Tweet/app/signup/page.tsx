@@ -9,58 +9,51 @@ import { motion } from 'framer-motion';
 import { LockKeyhole, UserCircle2 } from 'lucide-react';
 import { LoadingButton } from '@/components/ui/loading-button';
 import Link from "next/link";
+import { Button } from '@/components/ui/button';
 
-
-export default function Home() {
-  const [email, setEmail] = useState(''); 
-  const [name, setname] = useState(''); 
+export default function Signup() {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      const userResponse = await fetch('http://localhost:5000/api/user/login', {
+      const response = await fetch('/api/auth/signup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ name, email, password }),
       });
 
-      if (userResponse.ok) {
-        const userData = await userResponse.json();
-        // Store the user token
-        localStorage.setItem('token', userData.token);
-        window.location.href = '/dashboard';
+      if (response.ok) {
+        toast({
+          title: 'Signup successful',
+          description: 'You can now log in with your credentials.',
+        });
+        window.location.href = '/login';
       } else {
         toast({
           variant: 'destructive',
-          title: 'Login failed',
-          description: 'Invalid credentials. Please try again.',
+          title: 'Signup failed',
+          description: 'Please check your details and try again.',
         });
-        setIsLoading(false);
       }
-
-
-      // User login API call
-     
     } catch (error) {
       toast({
         variant: 'destructive',
-        title: 'Login error',
-        description: 'An error occurred while logging in. Please try again.',
+        title: 'Signup error',
+        description: 'An error occurred while signing up. Please try again.',
       });
+    } finally {
       setIsLoading(false);
     }
   };
-
-  if (isLoading) {
-    return <div>Loading</div>;
-  }
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
@@ -78,19 +71,19 @@ export default function Home() {
             >
               <UserCircle2 size={50} className="text-primary mb-2" />
             </motion.div>
-            <CardTitle className="text-2xl"> Tweet-X-Agent</CardTitle>
-            <CardDescription>Enter your credentials to SignUp</CardDescription>
+            <CardTitle className="text-2xl">Tweet-X-Agent</CardTitle>
+            <CardDescription>Create an account to get started</CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleLogin} className="space-y-4">
-            <div className="space-y-2">
-                <Label htmlFor="Name">Name</Label>
+            <form onSubmit={handleSignup} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">Name</Label>
                 <Input
-                  id="Name"
-                  type="name"
+                  id="name"
+                  type="text"
                   placeholder="Your Name"
                   value={name}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => setName(e.target.value)}
                   required
                 />
               </div>
@@ -99,7 +92,7 @@ export default function Home() {
                 <Input
                   id="email"
                   type="email"
-                  placeholder="Name@email.com"
+                  placeholder="name@email.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -110,31 +103,21 @@ export default function Home() {
                 <Input
                   id="password"
                   type="password"
-                  placeholder='*********'
+                  placeholder="*********"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
                 />
               </div>
-
+              <LoadingButton type="submit" className="w-full" loading={isLoading}>
+                <LockKeyhole className="mr-2 h-4 w-4" /> Sign Up
+              </LoadingButton>
             </form>
 
             <div className="mt-4 text-sm text-muted-foreground text-center">
-            <Link href={"/signup"}>   
-            <LoadingButton type="submit" className="w-full" loading={isLoading}>
-              <LockKeyhole  className="mr-2 h-4 w-4" /> SignUp
-              </LoadingButton>
-              </Link>
-
-
-            </div>   
-            <div className="mt-4 text-sm text-muted-foreground text-center">
-              <Link href={"/login"}>   
-              <LoadingButton type="submit" className="w-full" loading={isLoading}>
-                <LockKeyhole  className="mr-2 h-4 w-4" /> Login
-              </LoadingButton>
-              </Link>
-            </div>          
+              Already have an account? 
+              <Link href="/login" className="text-primary hover:underline"> Login</Link>
+            </div>
           </CardContent>
         </Card>
       </motion.div>
