@@ -10,6 +10,15 @@ const inter = Inter({ subsets: ['latin'] });
 export const metadata: Metadata = {
   title: 'X Agent - AI-Powered Tweet Automation',
   description: 'Automate your X presence with AI-generated tweets',
+  icons: {
+    icon: [
+      { url: "/favicon.ico", type: "image/x-icon" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: "/favicon.png", // For Apple devices
+  },
+
+
 };
 
 export default function RootLayout({
