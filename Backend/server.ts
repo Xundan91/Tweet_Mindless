@@ -110,7 +110,6 @@ Output only the tweets, each separated by a newline.Tweet should not look like b
       .slice(0, 4)
       .map((text: string, index: number) => ({ id: index + 1, text: text.trim() }));
 
-    // Clean up uploaded image after processing
     if (req.file) {
       fs.unlinkSync(req.file.path);
     }
@@ -119,7 +118,6 @@ Output only the tweets, each separated by a newline.Tweet should not look like b
   } catch (error: any) {
     console.error("Error generating tweets:", error.response?.data || error);
     
-    // Clean up uploaded image in case of error
     if (req.file && fs.existsSync(req.file.path)) {
       fs.unlinkSync(req.file.path);
     }
@@ -293,6 +291,8 @@ app.post("/analyze-tweet", upload.single("image"), async (req: any, res: any) =>
     res.status(500).json({ error: "Error analyzing tweet" });
   }
 });
+
+
 
 
 app.listen(5000, () => {

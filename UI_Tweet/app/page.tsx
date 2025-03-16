@@ -46,7 +46,7 @@ export default function Home() {
               Transform your Twitter presence with AI-powered tweets, smart scheduling, and engagement analytics. Join thousands of creators amplifying their social media impact.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <Link href="/dashboard">
+              <Link href="/login">
                 <Button size="lg" className="bg-primary hover:bg-primary/90 text-lg px-8">
                   Start Free Trial
                   <ArrowRight className="ml-2 h-5 w-5" />

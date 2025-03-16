@@ -2,7 +2,7 @@ import { Tweet,TweetAnalysis,TweetResponse ,AnalysisResponse } from "@/types/int
 
 // const API_BASE_URL = "http://localhost:5000"
 const API_BASE_URL = "https://tweet-mindless.onrender.com"
-// const API_BASE_URL = ""
+
 
 
 

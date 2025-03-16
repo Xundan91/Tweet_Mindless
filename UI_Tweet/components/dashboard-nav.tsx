@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Bot, Settings, CreditCard } from "lucide-react";
+import { signOut } from "next-auth/react";
 
 export function DashboardNav() {
   const router = useRouter();
@@ -44,7 +45,7 @@ export function DashboardNav() {
             </nav>
           </div>
           <div className="flex items-center space-x-4">
-            <Button variant="outline" onClick={()=>router.push("/pricing")}>Upgrade Plan</Button>
+            <Button variant="outline" onClick={() => signOut()}>Logout</Button>
           </div>
         </div>
       </div>
