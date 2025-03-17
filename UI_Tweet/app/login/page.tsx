@@ -114,7 +114,7 @@ export default function Login() {
                   required
                 />
               </div>
-              <LoadingButton type="submit" className="w-full" loading={isLoading}>
+              <LoadingButton type="submit" className="w-full" >
                 <LockKeyhole className="mr-2 h-4 w-4" /> Login
               </LoadingButton>
             </form>
@@ -158,7 +158,7 @@ export default function Login() {
 
             <div className="mt-4 text-sm text-muted-foreground text-center">
               <Link href={"/signup"}>
-                <LoadingButton type="button" className="w-full" loading={false}>
+                <LoadingButton type="button" className="w-full" >
                   <LockKeyhole className="mr-2 h-4 w-4" /> Sign Up
                 </LoadingButton>
               </Link>

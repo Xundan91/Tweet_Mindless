@@ -109,7 +109,7 @@ export default function Signup() {
                   required
                 />
               </div>
-              <LoadingButton type="submit" className="w-full" loading={isLoading}>
+              <LoadingButton type="submit" className="w-full" >
                 <LockKeyhole className="mr-2 h-4 w-4" /> Sign Up
               </LoadingButton>
             </form>
