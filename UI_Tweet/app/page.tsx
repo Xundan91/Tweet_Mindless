@@ -1,24 +1,56 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Bot, Sparkles, Clock, Settings, Mail, Twitter, Users, Zap, Shield, BarChart4, MessageSquare, Share2, Check } from "lucide-react";
+import {
+  ArrowRight,
+  Bot,
+  Sparkles,
+  Clock,
+  Settings,
+  Mail,
+  Twitter,
+  Users,
+  Zap,
+  Shield,
+  BarChart4,
+  MessageSquare,
+  Share2,
+  Check,
+} from "lucide-react";
 import Link from "next/link";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function Home() {
-
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation */}
       <nav className="border-b sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <Link href="/" className="text-xl font-bold flex items-center gap-2">
+            <Link
+              href="/"
+              className="text-xl font-bold flex items-center gap-2"
+            >
               <Twitter className="h-6 w-6 text-primary" />
               <span>ViralxAgent</span>
             </Link>
             <div className="flex items-center space-x-6">
-              <Link href="#features" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Features</Link>
-              <Link href="#pricing" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Pricing</Link>
-              <Link href="#contact" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Contact</Link>
+              <Link
+                href="#features"
+                className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+              >
+                Features
+              </Link>
+              <Link
+                href="#pricing"
+                className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+              >
+                Pricing
+              </Link>
+              <Link
+                href="#contact"
+                className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+              >
+                Contact
+              </Link>
               <ThemeToggle />
               <Link href="/login">
                 <Button>Login</Button>
@@ -43,11 +75,16 @@ export default function Home() {
               Automated & Enhanced
             </h1>
             <p className="text-xl text-muted-foreground mb-12 leading-relaxed">
-              Transform your Twitter presence with AI-powered tweets, smart scheduling, and engagement analytics. Join thousands of creators amplifying their social media impact.
+              Transform your Twitter presence with AI-powered tweets, smart
+              scheduling, and engagement analytics. Join thousands of creators
+              amplifying their social media impact.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Link href="/login">
-                <Button size="lg" className="bg-primary hover:bg-primary/90 text-lg px-8">
+                <Button
+                  size="lg"
+                  className="bg-primary hover:bg-primary/90 text-lg px-8"
+                >
                   Start Free Trial
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
@@ -88,41 +125,68 @@ export default function Home() {
       <section id="features" className="py-24">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-2xl mx-auto mb-16">
-            <h2 className="text-3xl font-bold mb-4">Everything You Need to Excel</h2>
+            <h2 className="text-3xl font-bold mb-4">
+              Everything You Need to Excel
+            </h2>
             <p className="text-muted-foreground text-lg">
-              Comprehensive tools and features designed to maximize your Twitter impact and save you time.
+              Comprehensive tools and features designed to maximize your Twitter
+              impact and save you time.
             </p>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
             <div className="bg-card p-8 rounded-xl border hover:border-primary/50 transition-colors">
               <Bot className="h-12 w-12 mb-6 text-primary" />
-              <h3 className="text-xl font-semibold mb-3">AI-Powered Generation</h3>
-              <p className="text-muted-foreground">Create engaging, contextual tweets that resonate with your audience using advanced AI technology.</p>
+              <h3 className="text-xl font-semibold mb-3">
+                AI-Powered Generation
+              </h3>
+              <p className="text-muted-foreground">
+                Create engaging, contextual tweets that resonate with your
+                audience using advanced AI technology.
+              </p>
             </div>
             <div className="bg-card p-8 rounded-xl border hover:border-primary/50 transition-colors">
               <Clock className="h-12 w-12 mb-6 text-primary" />
               <h3 className="text-xl font-semibold mb-3">Smart Scheduling</h3>
-              <p className="text-muted-foreground">Post at optimal times with our intelligent scheduling system that maximizes engagement.</p>
+              <p className="text-muted-foreground">
+                Post at optimal times with our intelligent scheduling system
+                that maximizes engagement.
+              </p>
             </div>
             <div className="bg-card p-8 rounded-xl border hover:border-primary/50 transition-colors">
               <BarChart4 className="h-12 w-12 mb-6 text-primary" />
-              <h3 className="text-xl font-semibold mb-3">Analytics & Insights</h3>
-              <p className="text-muted-foreground">Track performance metrics and get actionable insights to improve your Twitter strategy.</p>
+              <h3 className="text-xl font-semibold mb-3">
+                Analytics & Insights
+              </h3>
+              <p className="text-muted-foreground">
+                Track performance metrics and get actionable insights to improve
+                your Twitter strategy.
+              </p>
             </div>
             <div className="bg-card p-8 rounded-xl border hover:border-primary/50 transition-colors">
               <MessageSquare className="h-12 w-12 mb-6 text-primary" />
               <h3 className="text-xl font-semibold mb-3">Engagement Tools</h3>
-              <p className="text-muted-foreground">Boost interaction with smart reply suggestions and engagement automation features.</p>
+              <p className="text-muted-foreground">
+                Boost interaction with smart reply suggestions and engagement
+                automation features.
+              </p>
             </div>
             <div className="bg-card p-8 rounded-xl border hover:border-primary/50 transition-colors">
               <Shield className="h-12 w-12 mb-6 text-primary" />
               <h3 className="text-xl font-semibold mb-3">Safe & Secure</h3>
-              <p className="text-muted-foreground">Enterprise-grade security ensuring your account and data are always protected.</p>
+              <p className="text-muted-foreground">
+                Enterprise-grade security ensuring your account and data are
+                always protected.
+              </p>
             </div>
             <div className="bg-card p-8 rounded-xl border hover:border-primary/50 transition-colors">
               <Share2 className="h-12 w-12 mb-6 text-primary" />
-              <h3 className="text-xl font-semibold mb-3">Multi-Account Support</h3>
-              <p className="text-muted-foreground">Manage multiple Twitter accounts from a single, unified dashboard effortlessly.</p>
+              <h3 className="text-xl font-semibold mb-3">
+                Multi-Account Support
+              </h3>
+              <p className="text-muted-foreground">
+                Manage multiple Twitter accounts from a single, unified
+                dashboard effortlessly.
+              </p>
             </div>
           </div>
         </div>
@@ -132,15 +196,21 @@ export default function Home() {
       <section id="pricing" className="py-24 bg-muted/30">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-2xl mx-auto mb-16">
-            <h2 className="text-3xl font-bold mb-4">Simple, Transparent Pricing</h2>
-            <p className="text-muted-foreground text-lg">Choose the perfect plan for your Twitter automation needs.</p>
+            <h2 className="text-3xl font-bold mb-4">
+              Simple, Transparent Pricing
+            </h2>
+            <p className="text-muted-foreground text-lg">
+              Choose the perfect plan for your Twitter automation needs.
+            </p>
           </div>
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             <div className="bg-card p-8 rounded-xl border hover:shadow-lg transition-all">
               <div className="mb-8">
                 <h3 className="text-xl font-semibold mb-2">Basic</h3>
                 <p className="text-4xl font-bold">Free</p>
-                <p className="text-muted-foreground mt-2">Perfect for getting started</p>
+                <p className="text-muted-foreground mt-2">
+                  Perfect for getting started
+                </p>
               </div>
               <ul className="space-y-4 mb-8">
                 <li className="flex items-center gap-2">
@@ -156,9 +226,11 @@ export default function Home() {
                   <span>Manual posting only</span>
                 </li>
               </ul>
-              <Button className="w-full" variant="outline">Login</Button>
+              <Button className="w-full" variant="outline">
+                Login
+              </Button>
             </div>
-            
+
             <div className="bg-card p-8 rounded-xl border-2 border-primary relative transform hover:scale-105 transition-all">
               <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-medium">
                 Most Popular
@@ -213,26 +285,10 @@ export default function Home() {
                   <span>Priority support</span>
                 </li>
               </ul>
-              <Button className="w-full" variant="outline">Subscribe Now</Button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-24">
-        <div className="container mx-auto px-4">
-          <div className="bg-primary rounded-2xl p-12 text-center">
-            <h2 className="text-3xl font-bold text-primary-foreground mb-4">Ready to Transform Your Twitter Presence?</h2>
-            <p className="text-primary-foreground/80 text-lg mb-8 max-w-2xl mx-auto">
-              Join thousands of creators who are already using Twitter Agent to grow their audience and increase engagement.
-            </p>
-            <Link href="/dashboard">
-              <Button size="lg" variant="secondary" className="text-lg px-8">
-                Start Your Free Trial
-                <ArrowRight className="ml-2 h-5 w-5" />
+              <Button className="w-full" variant="outline">
+                Subscribe Now
               </Button>
-            </Link>
+            </div>
           </div>
         </div>
       </section>
@@ -243,17 +299,22 @@ export default function Home() {
           <div className="max-w-2xl mx-auto text-center">
             <h2 className="text-3xl font-bold mb-4">Get in Touch</h2>
             <p className="text-muted-foreground text-lg mb-8">
-              Have questions? Our team is here to help you get started with Twitter automation.
+              Have questions? Our team is here to help you get started with
+              Twitter automation.
             </p>
             <div className="grid sm:grid-cols-2 gap-4">
-              <Button size="lg" variant="outline" className="w-full">
-                <Mail className="mr-2 h-5 w-5" />
-                Contact Support
-              </Button>
-              <Button size="lg" variant="outline" className="w-full">
-                <Twitter className="mr-2 h-5 w-5" />
-                Follow Updates
-              </Button>
+                <Button size="lg" variant="outline" className="w-full" >
+                  <Mail className="mr-2 h-5 w-5" />
+                  
+                  Contact Support
+                </Button>
+       
+              <Link href={"https://x.com/kundan_singh91"}>
+                <Button size="lg" variant="outline" className="w-full">
+                  <Twitter className="mr-2 h-5 w-5" />
+                  Follow Updates
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
@@ -269,24 +330,34 @@ export default function Home() {
                 <span className="font-bold text-lg">Twitter Agent</span>
               </div>
               <p className="text-muted-foreground">
-                Empowering your Twitter presence with AI-driven automation and analytics.
+                Empowering your Twitter presence with AI-driven automation and
+                analytics.
               </p>
             </div>
             <div>
               <h3 className="font-semibold text-lg mb-4">Product</h3>
               <ul className="space-y-3">
                 <li>
-                  <Link href="#features" className="text-muted-foreground hover:text-primary transition-colors">
+                  <Link
+                    href="#features"
+                    className="text-muted-foreground hover:text-primary transition-colors"
+                  >
                     Features
                   </Link>
                 </li>
                 <li>
-                  <Link href="#pricing" className="text-muted-foreground hover:text-primary transition-colors">
+                  <Link
+                    href="#pricing"
+                    className="text-muted-foreground hover:text-primary transition-colors"
+                  >
                     Pricing
                   </Link>
                 </li>
                 <li>
-                  <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
+                  <Link
+                    href="#"
+                    className="text-muted-foreground hover:text-primary transition-colors"
+                  >
                     API
                   </Link>
                 </li>
@@ -296,17 +367,26 @@ export default function Home() {
               <h3 className="font-semibold text-lg mb-4">Company</h3>
               <ul className="space-y-3">
                 <li>
-                  <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
+                  <Link
+                    href="#"
+                    className="text-muted-foreground hover:text-primary transition-colors"
+                  >
                     About
                   </Link>
                 </li>
                 <li>
-                  <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
+                  <Link
+                    href="#"
+                    className="text-muted-foreground hover:text-primary transition-colors"
+                  >
                     Blog
                   </Link>
                 </li>
                 <li>
-                  <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
+                  <Link
+                    href="#"
+                    className="text-muted-foreground hover:text-primary transition-colors"
+                  >
                     Careers
                   </Link>
                 </li>
@@ -316,17 +396,26 @@ export default function Home() {
               <h3 className="font-semibold text-lg mb-4">Legal</h3>
               <ul className="space-y-3">
                 <li>
-                  <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
+                  <Link
+                    href="#"
+                    className="text-muted-foreground hover:text-primary transition-colors"
+                  >
                     Privacy
                   </Link>
                 </li>
                 <li>
-                  <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
+                  <Link
+                    href="#"
+                    className="text-muted-foreground hover:text-primary transition-colors"
+                  >
                     Terms
                   </Link>
                 </li>
                 <li>
-                  <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
+                  <Link
+                    href="#"
+                    className="text-muted-foreground hover:text-primary transition-colors"
+                  >
                     Security
                   </Link>
                 </li>
