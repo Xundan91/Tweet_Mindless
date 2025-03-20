@@ -4,10 +4,13 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Bot, Settings, CreditCard } from "lucide-react";
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 
 export function DashboardNav() {
+  const {data:session ,status} = useSession();
   const router = useRouter();
+
+  const userType = session?.user?.userType
 
   return (
     <header className="border-b">
@@ -21,7 +24,7 @@ export function DashboardNav() {
               <Button
                 variant="ghost"
                 className="flex items-center"
-                onClick={() => router.push("/dashboard")}
+                onClick={()=>router.push(`/dashboard/${userType}`)}
               >
                 <Bot className="mr-2 h-4 w-4" />
                 Generator

@@ -87,9 +87,9 @@ export default function History() {
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center gap-4 mb-8">
             <Link href="/dashboard">
-              <Button variant="ghost" size="sm" >
+              <Button variant="ghost" size="sm">
                 <ArrowLeft className="mr-2 h-4 w-4" />
-                Back
+                Back to Dashboard
               </Button>
             </Link>
             <div>

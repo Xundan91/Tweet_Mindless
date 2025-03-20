@@ -2,6 +2,7 @@
 
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import { log } from 'node:util';
 import { useEffect } from 'react';
 
 export default function Premium() {
@@ -9,22 +10,26 @@ export default function Premium() {
   const router = useRouter();
 
   useEffect(() => {
-    // If the user is authenticated but doesn't have premium access, redirect to their appropriate level
     if (status === 'authenticated') {
       const userType = session?.user?.userType;
-      if (userType !== 'premium') {
+      console.log(userType);
+      
+      if (userType !== 'premium' && userType !== 'free') {
         router.push(`/dashboard/${userType}`);
       }
+      if(userType ==='free') {
+        router.push(`/dashboard/${userType}`)
+      }   
     } 
-    // If the user isn't logged in, redirect to login
     else if (status === 'unauthenticated') {
       router.push('/login');
     }
   }, [status, session, router]);
 
-  // Show loading state while checking or redirecting
   if (status === 'loading' || (status === 'authenticated' && session?.user?.userType !== 'premium')) {
-    return <div>Loading...</div>;
+    return  <div className="flex h-screen w-full items-center justify-center">
+    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+  </div>
   }
 
   return (

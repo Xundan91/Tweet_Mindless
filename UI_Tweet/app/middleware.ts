@@ -12,17 +12,16 @@ export async function middleware(request: NextRequest) {
 
   if (token) {
     const userType = token.userType as string;
-    
-    if (pathname.startsWith('/dashboard/premium') && userType !== 'premium') {
-      return NextResponse.redirect(new URL('/dashboard/' + userType, request.url));
-    }
-    
-    if (pathname.startsWith('/dashboard/pro') && userType !== 'pro' && userType !== 'premium') {
-      return NextResponse.redirect(new URL('/dashboard/' + userType, request.url));
-    }
-    
-    if (pathname === '/dashboard' || pathname === '/dashboard/') {
-      return NextResponse.redirect(new URL('/dashboard/' + userType, request.url));
+
+    const restrictedPaths: Record<string, string[]> = {
+      free: ['/dashboard/pro', '/dashboard/premium'],
+      pro: ['/dashboard/free', '/dashboard/premium'],
+      premium: ['/dashboard/pro', '/dashboard/free'],
+    };
+   
+
+    if (restrictedPaths[userType]?.some(path => pathname.startsWith(path))) {
+      return NextResponse.redirect(new URL(`/dashboard/${userType}`, request.url));
     }
   }
 

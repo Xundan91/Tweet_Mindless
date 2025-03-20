@@ -69,7 +69,6 @@ const handler = NextAuth({
 
       let email = user.email ?? "";
 
-      // ✅ Fix: Use Type Assertions for Profile Properties
       if (account.provider === "twitter" && profile) {
         const twitterProfile = profile as { id_str?: string };
         email = `twitter-${twitterProfile.id_str ?? "unknown"}@twitter.com`;
@@ -82,15 +81,14 @@ const handler = NextAuth({
         where: { email },
       });
 
-      // ✅ Store Twitter OAuth tokens safely
       const twitterOauthToken =
         account.provider === "twitter" && "oauth_token" in account
           ? (account.oauth_token as string | null)
           : null;
 
       const twitterOauthSecret =
-        account.provider === "twitter" && "oauth_token_secret" in account
-          ? (account.oauth_token_secret as string | null)
+        account.provider === "twitter" && "oauth_token_secret" in account 
+        ? (account.oauth_token_secret as string | null)
           : null;
 
       if (!existingUser) {

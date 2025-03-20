@@ -1,25 +1,56 @@
-'use client';
-
+"use client";
 import { useState, useRef } from "react";
-import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Bot, Clock, Send, Calendar, Sparkles, BarChart, Edit2, ChevronRight, Image as ImageIcon, Smile, Globe2, X, Crown, Share2, ExternalLink } from "lucide-react";
+import {
+  Bot,
+  Clock,
+  Send,
+  Calendar,
+  Sparkles,
+  BarChart,
+  Edit2,
+  ChevronRight,
+  Image as ImageIcon,
+  Smile,
+  Globe2,
+  X,
+  Crown,
+  Share2,
+  ExternalLink,
+} from "lucide-react";
 import { DashboardNav } from "@/components/dashboard-nav";
 import Link from "next/link";
- 
+
+import EmojiPicker from "emoji-picker-react";
+
 import { Toaster } from "@/components/ui/toaster";
-import { useToast } from "@/hooks/use-toast"; 
+import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { OptimizationSuggestion, PredictedPerformance, PredictedRange, EngagementMetrics, Tweet, TweetAnalysis } from "@/types/interface";
+import {
+  OptimizationSuggestion,
+  PredictedPerformance,
+  PredictedRange,
+  EngagementMetrics,
+  Tweet,
+  TweetAnalysis,
+} from "@/types/interface";
 import { tweetService } from "@/services/api";
 import { useImageUpload } from "@/hooks/useImageUpload";
+import { AnyARecord } from "node:dns";
 
 export default function Free() {
   const { data: session, status } = useSession();
@@ -31,21 +62,54 @@ export default function Free() {
   const [editableContent, setEditableContent] = useState<string[]>([]);
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
   const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
-  const [tweetAnalysis, setTweetAnalysis] = useState<TweetAnalysis | null>(null);
+  const [tweetAnalysis, setTweetAnalysis] = useState<TweetAnalysis | null>(
+    null
+  );
   const analyzeFileInputRef = useRef<HTMLInputElement>(null);
   const [isSharing, setIsSharing] = useState<boolean>(false);
-  
-  const { selectedImage, previewUrl, fileInputRef, handleImageClick, handleImageChange, clearImage } = useImageUpload();
-  
+
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [isGlobeActive, setIsGlobeActive] = useState(false);
+  const [charCount, setCharCount] = useState(0);
+  const MAX_CHARS = 280;
+
+  const {
+    selectedImage,
+    previewUrl,
+    fileInputRef,
+    handleImageClick,
+    handleImageChange,
+    clearImage,
+  } = useImageUpload();
+
   const analyseImageUpload = useImageUpload();
+  useEffect
+
 
   useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/login');
+    if(status === 'authenticated'){
+      const userType = session?.user?.userType
+    if(userType ==='pro'){
+      router.push(`/dashboard/${userType}`)
+    }
+    if(userType ==='premium'){
+      router.push(`/dashboard/${userType}`)
+    }
+
+      if(userType !=='premium' && userType !=='pro'){
+
+        router.push(`/dashboard/${userType}`)
+
+      }
+    }
+
+
+    if (status === "unauthenticated") {
+      router.push("/login");
     }
   }, [status, router]);
 
-  if (status === 'loading') {
+  if (status === "loading") {
     return (
       <div className="flex h-screen w-full items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
@@ -53,12 +117,17 @@ export default function Free() {
     );
   }
 
+  const handleEmojiSelect = (emojiData: { emoji: string }) => {
+    setPrompt((prev) => prev + emojiData.emoji);
+    setShowEmojiPicker(false);
+  };
+
   const postTweet = async (tweet: string) => {
     try {
       setIsGenerating(true);
-      
+
       await tweetService.postTweet(tweet, selectedImage || undefined);
-      
+
       toast({
         title: "Tweet Posted!",
         description: "Your tweet was posted successfully.",
@@ -77,19 +146,22 @@ export default function Free() {
 
   const generateTweet = async () => {
     if (!prompt) {
-      return toast({ 
-        title: "Error", 
-        description: "Enter a prompt!", 
-        variant: "destructive" 
+      return toast({
+        title: "Error",
+        description: "Enter a prompt!",
+        variant: "destructive",
       });
     }
 
     try {
       setIsGenerating(true);
-      const generateTweet = await tweetService.generateTweets(prompt, tone, selectedImage || undefined);
+      const generateTweet = await tweetService.generateTweets(
+        prompt,
+        tone,
+        selectedImage || undefined
+      );
       setTweets(generateTweet);
-      setEditableContent(generateTweet.map(tweet => tweet.text));
-      
+      setEditableContent(generateTweet.map((tweet) => tweet.text));
     } catch (error) {
       console.error("Error generating tweet:", error);
       toast({
@@ -107,16 +179,19 @@ export default function Free() {
       return toast({
         title: "Error",
         description: "Enter a tweet to analyze!",
-        variant: "destructive"
+        variant: "destructive",
       });
     }
 
     setIsAnalyzing(true);
     try {
-      const analysisData = await tweetService.analyseTweet(tweetText, selectedImage || undefined);
-      
+      const analysisData = await tweetService.analyseTweet(
+        tweetText,
+        selectedImage || undefined
+      );
+
       setTweetAnalysis(analysisData);
-      
+
       toast({
         title: "Analysis Complete",
         description: "Tweet analysis has been completed successfully.",
@@ -138,44 +213,57 @@ export default function Free() {
   };
 
   // Function to share tweet on Twitter/X
-  const shareOnTwitter = (text: string) => {
+  const shareOnTwitter = async (text: string) => {
     setIsSharing(true);
-    
+  
     // Encode the tweet text for URL
     const encodedText = encodeURIComponent(text);
-    
-    // Create the Twitter/X share URL
-    let twitterUrl = `https://twitter.com/intent/tweet?text=${encodedText}`;
-    
-    // If there's an image, we can't directly include it in the URL intent
-    // Twitter's Web Intent doesn't support direct image uploads
-    // But we can mention that there's an image
+    const twitterUrl = `https://twitter.com/intent/tweet?text=${encodedText}`;
+  
     if (previewUrl) {
-      twitterUrl += encodeURIComponent(" [Image attached]");
+      try {
+        // Fetch image as blob
+        const response = await fetch(previewUrl);
+        const blob = await response.blob();
+        const item = new ClipboardItem({ [blob.type]: blob });
+  
+        // Copy image to clipboard
+        await navigator.clipboard.write([item]);
+  
+        toast({
+          title: "Image Copied!",
+          description: "Now, press Ctrl + V in Twitter to paste your image.",
+          duration: 4000,
+        });
+      } catch (error) {
+        console.error("Failed to copy image:", error);
+        toast({
+          title: "Clipboard Error",
+          description: "Couldn't copy the image. Please upload it manually.",
+          duration: 4000,
+        });
+      }
     }
-    
-    // Open in a new window/tab
-    window.open(twitterUrl, '_blank');
-    
+  
+    // Open Twitter in a new tab
+
+  setTimeout(()=>{
+
+    window.open(twitterUrl, "_blank");
+  },5000)
+  
     setTimeout(() => {
       setIsSharing(false);
-      
       toast({
-        title: "Redirected to X",
+        title: " Redirected to X ",
         description: "Your tweet content has been sent to X for posting.",
       });
-    }, 1000);
+    }, 3000);
   };
+  
 
-  // Function to open Twitter compose page
-  const openTwitterCompose = () => {
-    window.open('https://twitter.com/compose/tweet', '_blank');
-    
-    toast({
-      title: "Twitter Opened",
-      description: "X compose page has been opened in a new tab.",
-    });
-  };
+
+
 
   return (
     <div className="min-h-screen bg-background">
@@ -186,16 +274,28 @@ export default function Free() {
         <div className="max-w-4xl mx-auto">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold mb-2">Tweet Generator</h1>
+              <h1 className="text-2xl sm:text-3xl font-bold mb-2">
+                Tweet Generator
+              </h1>
               <div className="flex items-center">
-                <p className="text-muted-foreground">Create engaging tweets with AI assistance</p>
-                <Badge variant="outline" className="ml-2 bg-primary/10 text-primary">
+                <p className="text-muted-foreground">
+                  Create engaging tweets with AI assistance
+                </p>
+                <Badge
+                  variant="outline"
+                  className="ml-2 bg-primary/10 text-primary"
+                >
                   <Crown className="mr-1 h-3 w-3" /> Free Plan
                 </Badge>
               </div>
             </div>
             <div className="flex items-center gap-2 sm:gap-4">
-              <Button variant="outline" size="sm" disabled className="opacity-70">
+              <Button
+                variant="outline"
+                size="sm"
+                disabled
+                className="opacity-70"
+              >
                 <Clock className="mr-2 h-4 w-4" />
                 <span className="hidden sm:inline">History</span>
                 <Crown className="ml-1 h-3 w-3 text-yellow-500" />
@@ -214,7 +314,9 @@ export default function Free() {
             <CardContent className="p-4 flex flex-col sm:flex-row items-center justify-between">
               <div className="flex items-center mb-3 sm:mb-0">
                 <Crown className="h-5 w-5 text-yellow-500 mr-2" />
-                <span>Free plan: <strong>7/10</strong> daily tweets remaining</span>
+                <span>
+                  Free plan
+                </span>
               </div>
               <Link href="/pricing">
                 <Button size="sm" variant="outline">
@@ -227,11 +329,17 @@ export default function Free() {
 
           <Tabs defaultValue="generate" className="mb-8">
             <TabsList className="w-full flex gap-2 bg-transparent mb-8 p-1 border rounded-lg">
-              <TabsTrigger value="generate" className="flex-1 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md transition-all">
+              <TabsTrigger
+                value="generate"
+                className="flex-1 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md transition-all"
+              >
                 <Bot className="sm:mr-2 h-5 w-5" />
                 <span className="hidden sm:inline">Generate</span>
               </TabsTrigger>
-              <TabsTrigger value="analyze" className="flex-1 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md transition-all">
+              <TabsTrigger
+                value="analyze"
+                className="flex-1 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md transition-all"
+              >
                 <BarChart className="sm:mr-2 h-5 w-5" />
                 <span className="hidden sm:inline">Analyze</span>
               </TabsTrigger>
@@ -244,7 +352,10 @@ export default function Free() {
                     <CardContent className="p-4 sm:p-6">
                       <div className="flex flex-col sm:flex-row items-start gap-4 mb-4">
                         <Avatar className="h-10 w-10 hidden sm:flex">
-                          <img src="https://github.com/shadcn.png" alt="Profile" />
+                          <img
+                            src="https://github.com/shadcn.png"
+                            alt="Profile"
+                          />
                         </Avatar>
                         <div className="flex-1 w-full">
                           <Textarea
@@ -253,17 +364,17 @@ export default function Free() {
                             value={prompt}
                             onChange={(e) => setPrompt(e.target.value)}
                           />
-                          
+
                           {previewUrl && (
                             <div className="mt-4 relative rounded-lg overflow-hidden border">
-                              <img 
-                              src={previewUrl}  
-                              alt="Selected" 
-                              className="max-h-64 w-auto object-contain mx-auto"
+                              <img
+                                src={previewUrl}
+                                alt="Selected"
+                                className="max-h-64 w-auto object-contain mx-auto"
                               />
-                              <Button 
-                                variant="ghost" 
-                                size="sm" 
+                              <Button
+                                variant="ghost"
+                                size="sm"
                                 className="absolute top-2 right-2 p-1 h-8 w-8 bg-black/50 hover:bg-black/70 text-white rounded-full"
                                 onClick={clearImage}
                               >
@@ -271,10 +382,14 @@ export default function Free() {
                               </Button>
                             </div>
                           )}
-                          
+
                           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mt-4 border-t pt-4">
                             <div className="flex items-center gap-2">
-                              <Button variant="ghost" size="sm" onClick={handleImageClick}>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={handleImageClick}
+                              >
                                 <ImageIcon className="h-5 w-5 text-primary" />
                               </Button>
                               <input
@@ -284,34 +399,77 @@ export default function Free() {
                                 accept="image/*"
                                 className="hidden"
                               />
-                              <Button variant="ghost" size="sm">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() =>
+                                  setShowEmojiPicker(!showEmojiPicker)
+                                }
+                              >
                                 <Smile className="h-5 w-5 text-primary" />
                               </Button>
-                              <Button variant="ghost" size="sm">
-                                <Globe2 className="h-5 w-5 text-primary" />
+                              {showEmojiPicker && (
+                                <div className="absolute z-50 mt-2">
+                                  <EmojiPicker
+                                    onEmojiClick={handleEmojiSelect}
+                                  />
+                                </div>
+                              )}
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setIsGlobeActive(!isGlobeActive)}
+                              >
+                                <Globe2
+                                  className={`h-5 w-5 transition-colors duration-300 ${
+                                    isGlobeActive
+                                      ? "text-blue-500"
+                                      : "text-primary"
+                                  }`}
+                                />
                               </Button>
                             </div>
-                            
+
                             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full sm:ml-auto sm:justify-end">
                               <div className="flex items-center gap-2 w-full sm:w-auto">
-                                <span className="text-sm font-medium">Tone:</span>
+                                <span className="text-sm font-medium">
+                                  Tone:
+                                </span>
                                 <div className="w-full sm:w-32">
                                   <Select value={tone} onValueChange={setTone}>
                                     <SelectTrigger className="h-8">
                                       <SelectValue placeholder="Select tone" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                      <SelectItem value="casual">🌟 Casual</SelectItem>
-                                      <SelectItem value="trending">🔥 Trending</SelectItem>
-                                      <SelectItem value="hinglish">🇮🇳 Hinglish</SelectItem>
-                                      <SelectItem disabled value="funny" className="opacity-50">😄 Funny (Premium)</SelectItem>
-                                      <SelectItem disabled value="formal" className="opacity-50">👔 Formal (Premium)</SelectItem>
+                                      <SelectItem value="casual">
+                                        🌟 Casual
+                                      </SelectItem>
+                                      <SelectItem value="trending">
+                                        🔥 Trending
+                                      </SelectItem>
+                                      <SelectItem value="hinglish">
+                                        🇮🇳 Hinglish
+                                      </SelectItem>
+                                      <SelectItem
+                                        disabled
+                                        value="funny"
+                                        className="opacity-50"
+                                      >
+                                        😄 Funny (Premium)
+                                      </SelectItem>
+                                      <SelectItem
+                                        disabled
+                                        value="formal"
+                                        className="opacity-50"
+                                      >
+                                        👔 Formal (Premium)
+                                      </SelectItem>
                                     </SelectContent>
                                   </Select>
                                 </div>
                               </div>
-                              <Button 
-                                size="sm" 
+                              <Button
+                                size="sm"
                                 onClick={generateTweet}
                                 disabled={isGenerating || !prompt}
                                 className="w-full sm:w-auto"
@@ -336,21 +494,39 @@ export default function Free() {
                   </Card>
 
                   <div className="space-y-4">
-                    {tweets.length > 0 && <h2 className="text-xl font-semibold">Generated Tweets</h2>}
+                    {tweets.length > 0 && (
+                      <h2 className="text-xl font-semibold">
+                        Generated Tweets
+                      </h2>
+                    )}
                     {tweets.map((tweet, index) => (
-                      <Card key={tweet.id} className="group hover:border-primary/30 transition-all duration-300">
+                      <Card
+                        key={tweet.id}
+                        className="group hover:border-primary/30 transition-all duration-300"
+                      >
                         <CardContent className="p-4 sm:p-6">
                           <div className="flex flex-col sm:flex-row items-start gap-4">
                             <Avatar className="h-10 w-10 hidden sm:flex">
-                              <img src="https://github.com/shadcn.png" alt="Profile" />
+                              <img
+                                src="https://github.com/shadcn.png"
+                                alt="Profile"
+                              />
                             </Avatar>
                             <div className="flex-1 w-full">
-                            <div className="flex items-start justify-between gap-2 mb-1">
+                              <div className="flex items-start justify-between gap-2 mb-1">
                                 <div>
-                                  <span className="font-semibold">John Doe</span>
-                                  <span className="text-muted-foreground ml-2">@johndoe</span>
+                                  <span className="font-semibold">
+                                    John Doe
+                                  </span>
+                                  <span className="text-muted-foreground ml-2">
+                                    @johndoe
+                                  </span>
                                 </div>
-                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-8 w-8 p-0"
+                                >
                                   <Edit2 className="h-4 w-4" />
                                 </Button>
                               </div>
@@ -369,30 +545,38 @@ export default function Free() {
                               </div>
                               {previewUrl && (
                                 <div className="mt-2 mb-4 rounded-lg overflow-hidden border">
-                                  <img 
-                                    src={previewUrl} 
-                                    alt="Tweet image" 
+                                  <img
+                                    src={previewUrl}
+                                    alt="Tweet image"
                                     className="max-h-64 w-auto object-contain mx-auto"
                                   />
                                 </div>
                               )}
                               <div className="flex flex-wrap items-center gap-3 mt-4">
-                                <Button 
-                                  size="sm" 
-                                  variant="default" 
+                                <Button
+                                  size="sm"
+                                  variant="default"
                                   className="bg-primary/10 hover:bg-primary/20 text-primary transition-all duration-300 transform hover:scale-105"
-                                  onClick={() => postTweet(editableContent[index] || tweet.text)}
+                                  onClick={() =>
+                                    postTweet(
+                                      editableContent[index] || tweet.text
+                                    )
+                                  }
                                 >
                                   <Send className="mr-2 h-4 w-4" />
                                   Post Now
                                 </Button>
-                                
+
                                 {/* New Share on X Button */}
-                                <Button 
-                                  size="sm" 
-                                  variant="outline" 
+                                <Button
+                                  size="sm"
+                                  variant="outline"
                                   className="border-blue-400 text-blue-500 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-500 transition-all duration-300 transform hover:scale-105"
-                                  onClick={() => shareOnTwitter(editableContent[index] || tweet.text)}
+                                  onClick={() =>
+                                    shareOnTwitter(
+                                      editableContent[index] || tweet.text
+                                    )
+                                  }
                                   disabled={isSharing}
                                 >
                                   {isSharing ? (
@@ -407,21 +591,9 @@ export default function Free() {
                                     </>
                                   )}
                                 </Button>
-                                
-                                {/* New Open X Compose Button */}
-                                <Button 
-                                  size="sm" 
-                                  variant="outline" 
-                                  className="border-gray-300 text-gray-600 hover:bg-gray-50 hover:border-gray-400 transition-all duration-300 transform hover:scale-105"
-                                  onClick={openTwitterCompose}
-                                >
-                                  <ExternalLink className="mr-2 h-4 w-4" />
-                                  Open X Compose
-                                </Button>
-                                
-                                <Button 
-                                  size="sm" 
-                                  variant="outline" 
+                                <Button
+                                  size="sm"
+                                  variant="outline"
                                   className="hover:border-primary/30 opacity-70"
                                   disabled={true}
                                   title="Available in premium plan"
@@ -448,7 +620,10 @@ export default function Free() {
                     <CardContent className="p-4 sm:p-6">
                       <div className="flex flex-col sm:flex-row items-start gap-4 mb-6">
                         <Avatar className="h-10 w-10 hidden sm:flex">
-                          <img src="https://github.com/shadcn.png" alt="Profile" />
+                          <img
+                            src="https://github.com/shadcn.png"
+                            alt="Profile"
+                          />
                         </Avatar>
                         <div className="flex-1 w-full">
                           <Textarea
@@ -457,17 +632,17 @@ export default function Free() {
                             value={prompt}
                             onChange={(e) => setPrompt(e.target.value)}
                           />
-                          
+
                           {previewUrl && (
                             <div className="mt-4 relative rounded-lg overflow-hidden border">
-                              <img 
-                                src={previewUrl} 
-                                alt="Selected" 
+                              <img
+                                src={previewUrl}
+                                alt="Selected"
                                 className="max-h-64 w-auto object-contain mx-auto"
                               />
-                              <Button 
-                                variant="ghost" 
-                                size="sm" 
+                              <Button
+                                variant="ghost"
+                                size="sm"
                                 className="absolute top-2 right-2 p-1 h-8 w-8 bg-black/50 hover:bg-black/70 text-white rounded-full"
                                 onClick={clearImage}
                               >
@@ -475,11 +650,15 @@ export default function Free() {
                               </Button>
                             </div>
                           )}
-                          
+
                           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mt-4 border-t pt-4">
                             <div className="flex items-center gap-2">
-                              <Button variant="ghost" size="sm" onClick={handleImageClick}>
-                                <ImageIcon className="h-5 w-5 text-primary"/>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={handleImageClick}
+                              >
+                                <ImageIcon className="h-5 w-5 text-primary" />
                               </Button>
                               <input
                                 type="file"
@@ -495,9 +674,9 @@ export default function Free() {
                                 <Globe2 className="h-5 w-5 text-primary" />
                               </Button>
                             </div>
-                            
+
                             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full sm:ml-auto sm:justify-end">
-                              <Button 
+                              <Button
                                 size="sm"
                                 onClick={() => analyzeTweet(prompt)}
                                 disabled={isAnalyzing || !prompt}
@@ -528,59 +707,87 @@ export default function Free() {
                         {/* Engagement Metrics Card - Blurred */}
                         <Card className="relative">
                           <CardHeader className="p-4 sm:p-6">
-                            <CardTitle className="text-lg">Engagement Prediction</CardTitle>
+                            <CardTitle className="text-lg">
+                              Engagement Prediction
+                            </CardTitle>
                           </CardHeader>
                           <CardContent className="p-4 sm:p-6 pt-0">
                             <div className="space-y-4 blur-sm">
                               <div>
                                 <div className="flex justify-between mb-2">
                                   <span>Viral Probability</span>
-                                  <span className="font-semibold">{tweetAnalysis.engagementMetrics.viralProbability*10}%</span>
+                                  <span className="font-semibold">
+                                    {tweetAnalysis.engagementMetrics
+                                      .viralProbability * 10}
+                                    %
+                                  </span>
                                 </div>
                                 <div className="h-2 bg-primary/20 rounded-full">
-                                  <div 
-                                    className="h-full bg-primary rounded-full" 
-                                    style={{ width: `${tweetAnalysis.engagementMetrics.viralProbability*10}%` }}
+                                  <div
+                                    className="h-full bg-primary rounded-full"
+                                    style={{
+                                      width: `${
+                                        tweetAnalysis.engagementMetrics
+                                          .viralProbability * 10
+                                      }%`,
+                                    }}
                                   ></div>
                                 </div>
                               </div>
                               <div>
                                 <div className="flex justify-between mb-2">
                                   <span>Likeability Score</span>
-                                  <span className="font-semibold">{tweetAnalysis.engagementMetrics.likeabilityScore*10}%</span>
+                                  <span className="font-semibold">
+                                    {tweetAnalysis.engagementMetrics
+                                      .likeabilityScore * 10}
+                                    %
+                                  </span>
                                 </div>
                                 <div className="h-2 bg-primary/20 rounded-full">
-                                  <div 
-                                    className="h-full bg-primary rounded-full" 
-                                    style={{ width: `${tweetAnalysis.engagementMetrics.likeabilityScore*10}%` }}
+                                  <div
+                                    className="h-full bg-primary rounded-full"
+                                    style={{
+                                      width: `${
+                                        tweetAnalysis.engagementMetrics
+                                          .likeabilityScore * 10
+                                      }%`,
+                                    }}
                                   ></div>
                                 </div>
                               </div>
                               <div>
                                 <div className="flex justify-between mb-2">
                                   <span>Retweet Potential</span>
-                                  <span className="font-semibold">{tweetAnalysis.engagementMetrics.retweetPotential}%</span>
+                                  <span className="font-semibold">
+                                    {
+                                      tweetAnalysis.engagementMetrics
+                                        .retweetPotential
+                                    }
+                                    %
+                                  </span>
                                 </div>
                                 <div className="h-2 bg-primary/20 rounded-full">
-                                  <div 
-                                    className="h-full bg-primary rounded-full" 
-                                    style={{ width: `${tweetAnalysis.engagementMetrics.retweetPotential}%` }}
+                                  <div
+                                    className="h-full bg-primary rounded-full"
+                                    style={{
+                                      width: `${tweetAnalysis.engagementMetrics.retweetPotential}%`,
+                                    }}
                                   ></div>
                                 </div>
                               </div>
                             </div>
-                            
+
                             {/* Upgrade Overlay */}
                             <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/80 rounded-lg">
                               <Crown className="h-10 w-10 text-yellow-500 mb-2" />
-                              <h3 className="font-semibold text-lg mb-2">Premium Feature</h3>
+                              <h3 className="font-semibold text-lg mb-2">
+                                Premium Feature
+                              </h3>
                               <p className="text-sm text-muted-foreground text-center mb-3 px-4">
                                 Unlock detailed engagement metrics
                               </p>
                               <Link href="/pricing">
-                                <Button size="sm">
-                                  Upgrade to Premium
-                                </Button>
+                                <Button size="sm">Upgrade to Premium</Button>
                               </Link>
                             </div>
                           </CardContent>
@@ -589,41 +796,67 @@ export default function Free() {
                         {/* Predicted Performance Card - Blurred */}
                         <Card className="relative">
                           <CardHeader className="p-4 sm:p-6">
-                            <CardTitle className="text-lg">Predicted Performance</CardTitle>
+                            <CardTitle className="text-lg">
+                              Predicted Performance
+                            </CardTitle>
                           </CardHeader>
                           <CardContent className="p-4 sm:p-6 pt-0">
                             <div className="space-y-4 blur-sm">
                               <div className="flex justify-between items-center p-3 bg-primary/5 rounded-lg">
                                 <span>Expected Likes</span>
                                 <span className="font-semibold">
-                                  {formatNumber(tweetAnalysis.predictedPerformance.expectedLikes.min)} - {formatNumber(tweetAnalysis.predictedPerformance.expectedLikes.max)}
+                                  {formatNumber(
+                                    tweetAnalysis.predictedPerformance
+                                      .expectedLikes.min
+                                  )}{" "}
+                                  -{" "}
+                                  {formatNumber(
+                                    tweetAnalysis.predictedPerformance
+                                      .expectedLikes.max
+                                  )}
                                 </span>
                               </div>
                               <div className="flex justify-between items-center p-3 bg-primary/5 rounded-lg">
                                 <span>Expected Retweets</span>
                                 <span className="font-semibold">
-                                  {formatNumber(tweetAnalysis.predictedPerformance.expectedRetweets.min)} - {formatNumber(tweetAnalysis.predictedPerformance.expectedRetweets.max)}
+                                  {formatNumber(
+                                    tweetAnalysis.predictedPerformance
+                                      .expectedRetweets.min
+                                  )}{" "}
+                                  -{" "}
+                                  {formatNumber(
+                                    tweetAnalysis.predictedPerformance
+                                      .expectedRetweets.max
+                                  )}
                                 </span>
                               </div>
                               <div className="flex justify-between items-center p-3 bg-primary/5 rounded-lg">
                                 <span>Expected Comments</span>
                                 <span className="font-semibold">
-                                  {formatNumber(tweetAnalysis.predictedPerformance.expectedComments.min)} - {formatNumber(tweetAnalysis.predictedPerformance.expectedComments.max)}
+                                  {formatNumber(
+                                    tweetAnalysis.predictedPerformance
+                                      .expectedComments.min
+                                  )}{" "}
+                                  -{" "}
+                                  {formatNumber(
+                                    tweetAnalysis.predictedPerformance
+                                      .expectedComments.max
+                                  )}
                                 </span>
                               </div>
                             </div>
-                            
+
                             {/* Upgrade Overlay */}
                             <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/80 rounded-lg">
                               <Crown className="h-10 w-10 text-yellow-500 mb-2" />
-                              <h3 className="font-semibold text-lg mb-2">Premium Feature</h3>
+                              <h3 className="font-semibold text-lg mb-2">
+                                Premium Feature
+                              </h3>
                               <p className="text-sm text-muted-foreground text-center mb-3 px-4">
                                 Unlock performance predictions
                               </p>
                               <Link href="/pricing">
-                                <Button size="sm">
-                                  Upgrade to Premium
-                                </Button>
+                                <Button size="sm">Upgrade to Premium</Button>
                               </Link>
                             </div>
                           </CardContent>
@@ -637,25 +870,26 @@ export default function Free() {
                               Get The Complete Picture
                             </h3>
                             <p className="text-sm text-gray-400 mt-1">
-                              Upgrade to premium for competitor analysis, audience insights, and advanced AI predictions
+                              Upgrade to premium for competitor analysis,
+                              audience insights, and advanced AI predictions
                             </p>
                           </div>
                           <Link href="/pricing">
-                          <Button>
-                                Upgrade Now
-                                <ChevronRight className="ml-2 h-4 w-4" />
-                              </Button>
-                            </Link>
-                          </CardContent>
-                        </Card> 
-                      </>
-                    )}
-                  </div>
+                            <Button>
+                              Upgrade Now
+                              <ChevronRight className="ml-2 h-4 w-4" />
+                            </Button>
+                          </Link>
+                        </CardContent>
+                      </Card>
+                    </>
+                  )}
                 </div>
-              </TabsContent>
-            </Tabs>
-          </div>
-        </main>
-      </div>
-    );
-  }
+              </div>
+            </TabsContent>
+          </Tabs>
+        </div>
+      </main>
+    </div>
+  );
+}
