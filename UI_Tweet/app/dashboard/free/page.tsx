@@ -57,6 +57,7 @@ export default function Free() {
   const router = useRouter();
   const { toast } = useToast();
   const [tone, setTone] = useState<string>("casual");
+  const [model, setmodel] = useState<string>("gemini");
   const [prompt, setPrompt] = useState<string>("");
   const [tweets, setTweets] = useState<Tweet[]>([]);
   const [editableContent, setEditableContent] = useState<string[]>([]);
@@ -83,26 +84,22 @@ export default function Free() {
   } = useImageUpload();
 
   const analyseImageUpload = useImageUpload();
-  useEffect
-
+  useEffect;
 
   useEffect(() => {
-    if(status === 'authenticated'){
-      const userType = session?.user?.userType
-    if(userType ==='pro'){
-      router.push(`/dashboard/${userType}`)
-    }
-    if(userType ==='premium'){
-      router.push(`/dashboard/${userType}`)
-    }
+    if (status === "authenticated") {
+      const userType = session?.user?.userType;
+      if (userType === "pro") {
+        router.push(`/dashboard/${userType}`);
+      }
+      if (userType === "premium") {
+        router.push(`/dashboard/${userType}`);
+      }
 
-      if(userType !=='premium' && userType !=='pro'){
-
-        router.push(`/dashboard/${userType}`)
-
+      if (userType !== "premium" && userType !== "pro") {
+        router.push(`/dashboard/${userType}`);
       }
     }
-
 
     if (status === "unauthenticated") {
       router.push("/login");
@@ -215,21 +212,21 @@ export default function Free() {
   // Function to share tweet on Twitter/X
   const shareOnTwitter = async (text: string) => {
     setIsSharing(true);
-  
+
     // Encode the tweet text for URL
     const encodedText = encodeURIComponent(text);
     const twitterUrl = `https://twitter.com/intent/tweet?text=${encodedText}`;
-  
+
     if (previewUrl) {
       try {
         // Fetch image as blob
         const response = await fetch(previewUrl);
         const blob = await response.blob();
         const item = new ClipboardItem({ [blob.type]: blob });
-  
+
         // Copy image to clipboard
         await navigator.clipboard.write([item]);
-  
+
         toast({
           title: "Image Copied!",
           description: "Now, press Ctrl + V in Twitter to paste your image.",
@@ -244,14 +241,13 @@ export default function Free() {
         });
       }
     }
-  
+
     // Open Twitter in a new tab
 
-  setTimeout(()=>{
+    setTimeout(() => {
+      window.open(twitterUrl, "_blank");
+    }, 5000);
 
-    window.open(twitterUrl, "_blank");
-  },5000)
-  
     setTimeout(() => {
       setIsSharing(false);
       toast({
@@ -260,10 +256,6 @@ export default function Free() {
       });
     }, 3000);
   };
-  
-
-
-
 
   return (
     <div className="min-h-screen bg-background">
@@ -288,7 +280,6 @@ export default function Free() {
                   <Crown className="mr-1 h-3 w-3" /> Free Plan
                 </Badge>
               </div>
-              
             </div>
             <div className="flex items-center gap-2 sm:gap-4">
               <Button
@@ -315,9 +306,7 @@ export default function Free() {
             <CardContent className="p-4 flex flex-col sm:flex-row items-center justify-between">
               <div className="flex items-center mb-3 sm:mb-0">
                 <Crown className="h-5 w-5 text-yellow-500 mr-2" />
-                <span>
-                  Free plan
-                </span>
+                <span>Free plan</span>
               </div>
               <Link href="/pricing">
                 <Button size="sm" variant="outline">
@@ -346,7 +335,7 @@ export default function Free() {
               </TabsTrigger>
             </TabsList>
 
-                      {/*this is generate Section when selected  */}
+            {/*this is generate Section when selected  */}
 
             <TabsContent value="generate">
               <div>
@@ -361,7 +350,8 @@ export default function Free() {
                           />
                         </Avatar>
                         <div className="flex-1 w-full">
-                          <Textarea placeholder="What would you like to tweet about?"
+                          <Textarea
+                            placeholder="What would you like to tweet about?"
                             className="min-h-[120px] text-lg resize-none border-none focus-visible:ring-0 p-0 bg-transparent"
                             value={prompt}
                             onChange={(e) => setPrompt(e.target.value)}
@@ -387,7 +377,11 @@ export default function Free() {
 
                           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mt-4 border-t pt-4">
                             <div className="flex items-center gap-2">
-                              <Button variant="ghost" size="sm" onClick={handleImageClick}>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={handleImageClick}
+                              >
                                 <ImageIcon className="h-5 w-5 text-primary" />
                               </Button>
                               <input
@@ -466,6 +460,83 @@ export default function Free() {
                                   </Select>
                                 </div>
                               </div>
+                              <div className="flex items-center gap-2 w-full sm:w-auto">
+                                <span className="text-sm font-medium">
+                                  Model :
+                                </span>
+                                <div className="w-full sm:w-32">
+                                  <Select
+                                    value={model}
+                                    onValueChange={setmodel}
+                                  >
+                                    <SelectTrigger className="h-9 border-gray-300 shadow-sm">
+                                      <SelectValue placeholder="Select Model" />
+                                    </SelectTrigger>
+                                    <SelectContent className="max-h-60 overflow-y-auto">
+                                      <SelectItem value="gemini">
+                                        🌟 Gemini
+                                      </SelectItem>
+                                      <SelectItem
+                                        disabled
+                                        value="gpt-4"
+                                        className="opacity-50"
+                                      >
+                                        🧠 GPT-4 Turbo
+                                      </SelectItem>
+                                      <SelectItem
+                                        disabled
+                                        value="gpt-3.5"
+                                        className="opacity-50"
+                                      >
+                                        🤖 GPT-3.5
+                                      </SelectItem>
+                                      <SelectItem
+                                        disabled
+                                        value="mistral"
+                                        className="opacity-50"
+                                      >
+                                        ⚡ Mistral-7B
+                                      </SelectItem>
+                                      <SelectItem
+                                        disabled
+                                        value="claude-3"
+                                        className="opacity-50"
+                                      >
+                                        📝 Claude 3 Sonnet
+                                      </SelectItem>
+                                      <SelectItem
+                                        disabled
+                                        value="llama-3"
+                                        className="opacity-50"
+                                      >
+                                        🦙 LLaMA 3
+                                      </SelectItem>
+                                      <SelectItem
+                                        disabled
+                                        value="command-r"
+                                        className="opacity-50"
+                                      >
+                                        🚀 Command R+
+                                      </SelectItem>
+                                      <SelectItem
+                                        disabled
+                                        value="mixtral"
+                                        className="opacity-50"
+                                      >
+                                        🔗 Mixtral-8x7B
+                                      </SelectItem>
+                                      <SelectItem
+                                        disabled
+                                        value="deepseek"
+                                        className="opacity-50"
+                                      >
+                                        🔍 DeepSeek
+                                      </SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                              </div>
+
                               <Button
                                 size="sm"
                                 onClick={generateTweet}
@@ -513,9 +584,7 @@ export default function Free() {
                             <div className="flex-1 w-full">
                               <div className="flex items-start justify-between gap-2 mb-1">
                                 <div>
-                                  <span className="font-semibold">
-                                    X user
-                                  </span>
+                                  <span className="font-semibold">X user</span>
                                   <span className="text-muted-foreground ml-2">
                                     @X_user01
                                   </span>
@@ -610,7 +679,7 @@ export default function Free() {
                 </div>
               </div>
             </TabsContent>
-                      {/*this is Analysis Section when selected   */}
+            {/*this is Analysis Section when selected   */}
 
             <TabsContent value="analyze">
               <div>
