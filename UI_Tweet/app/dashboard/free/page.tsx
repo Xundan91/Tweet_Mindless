@@ -288,6 +288,7 @@ export default function Free() {
                   <Crown className="mr-1 h-3 w-3" /> Free Plan
                 </Badge>
               </div>
+              
             </div>
             <div className="flex items-center gap-2 sm:gap-4">
               <Button
@@ -326,7 +327,7 @@ export default function Free() {
               </Link>
             </CardContent>
           </Card>
-
+          {/*this is generate Section and anlysis section  */}
           <Tabs defaultValue="generate" className="mb-8">
             <TabsList className="w-full flex gap-2 bg-transparent mb-8 p-1 border rounded-lg">
               <TabsTrigger
@@ -345,6 +346,8 @@ export default function Free() {
               </TabsTrigger>
             </TabsList>
 
+                      {/*this is generate Section when selected  */}
+
             <TabsContent value="generate">
               <div>
                 <div className="space-y-6">
@@ -358,8 +361,7 @@ export default function Free() {
                           />
                         </Avatar>
                         <div className="flex-1 w-full">
-                          <Textarea
-                            placeholder="What would you like to tweet about?"
+                          <Textarea placeholder="What would you like to tweet about?"
                             className="min-h-[120px] text-lg resize-none border-none focus-visible:ring-0 p-0 bg-transparent"
                             value={prompt}
                             onChange={(e) => setPrompt(e.target.value)}
@@ -385,11 +387,7 @@ export default function Free() {
 
                           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mt-4 border-t pt-4">
                             <div className="flex items-center gap-2">
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={handleImageClick}
-                              >
+                              <Button variant="ghost" size="sm" onClick={handleImageClick}>
                                 <ImageIcon className="h-5 w-5 text-primary" />
                               </Button>
                               <input
@@ -516,10 +514,10 @@ export default function Free() {
                               <div className="flex items-start justify-between gap-2 mb-1">
                                 <div>
                                   <span className="font-semibold">
-                                    John Doe
+                                    X user
                                   </span>
                                   <span className="text-muted-foreground ml-2">
-                                    @johndoe
+                                    @X_user01
                                   </span>
                                 </div>
                                 <Button
@@ -612,6 +610,7 @@ export default function Free() {
                 </div>
               </div>
             </TabsContent>
+                      {/*this is Analysis Section when selected   */}
 
             <TabsContent value="analyze">
               <div>
