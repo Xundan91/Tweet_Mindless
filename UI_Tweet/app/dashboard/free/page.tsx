@@ -246,7 +246,7 @@ export default function Free() {
 
     setTimeout(() => {
       window.open(twitterUrl, "_blank");
-    }, 5000);
+    }, 3000);
 
     setTimeout(() => {
       setIsSharing(false);
