@@ -32,6 +32,7 @@ import {
   Share2,
   ExternalLink,
 } from "lucide-react";
+
 import { DashboardNav } from "@/components/dashboard-nav";
 import Link from "next/link";
 
@@ -50,8 +51,7 @@ import {
 } from "@/types/interface";
 import { tweetService } from "@/services/api";
 import { useImageUpload } from "@/hooks/useImageUpload";
-import { AnyARecord } from "node:dns";
-
+import {  copyImageToClipboard} from "@/lib/utils"
 export default function Free() {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -84,8 +84,8 @@ export default function Free() {
   } = useImageUpload();
 
   const analyseImageUpload = useImageUpload();
-  useEffect;
-
+  
+///auth baby most Important 
   useEffect(() => {
     if (status === "authenticated") {
       const userType = session?.user?.userType;
@@ -114,10 +114,12 @@ export default function Free() {
     );
   }
 
+
   const handleEmojiSelect = (emojiData: { emoji: string }) => {
     setPrompt((prev) => prev + emojiData.emoji);
     setShowEmojiPicker(false);
   };
+  /////api calls
 
   const postTweet = async (tweet: string) => {
     try {
@@ -209,53 +211,32 @@ export default function Free() {
     return num >= 1000 ? `${(num / 1000).toFixed(1)}K` : num.toString();
   };
 
-  // Function to share tweet on Twitter/X
-  const shareOnTwitter = async (text: string) => {
+  const handleShareOnTwitter = async (text: string) => {
     setIsSharing(true);
-
-    // Encode the tweet text for URL
     const encodedText = encodeURIComponent(text);
     const twitterUrl = `https://twitter.com/intent/tweet?text=${encodedText}`;
 
     if (previewUrl) {
-      try {
-        // Fetch image as blob
-        const response = await fetch(previewUrl);
-        const blob = await response.blob();
-        const item = new ClipboardItem({ [blob.type]: blob });
-
-        // Copy image to clipboard
-        await navigator.clipboard.write([item]);
-
-        toast({
-          title: "Image Copied!",
-          description: "Now, press Ctrl + V in Twitter to paste your image.",
-          duration: 4000,
-        });
-      } catch (error) {
-        console.error("Failed to copy image:", error);
-        toast({
-          title: "Clipboard Error",
-          description: "Couldn't copy the image. Please upload it manually.",
-          duration: 4000,
-        });
-      }
+      const success = await copyImageToClipboard(previewUrl);
+      toast({
+        title: success ? "Image Copied!" : "Clipboard Error",
+        description: success
+          ? "Now, press Ctrl + V in Twitter to paste your image."
+          : "Couldn't copy the image. Please upload it manually.",
+        duration: 4000,
+      });
     }
-
-    // Open Twitter in a new tab
 
     setTimeout(() => {
       window.open(twitterUrl, "_blank");
-    }, 3000);
+    }, 5000);
 
     setTimeout(() => {
       setIsSharing(false);
-      toast({
-        title: " Redirected to X ",
-        description: "Your tweet content has been sent to X for posting.",
-      });
+      toast({ title: "Redirected to X", description: "Your tweet content has been sent to X for posting." });
     }, 3000);
   };
+
 
   return (
     <div className="min-h-screen bg-background">
@@ -640,7 +621,7 @@ export default function Free() {
                                   variant="outline"
                                   className="border-blue-400 text-blue-500 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-500 transition-all duration-300 transform hover:scale-105"
                                   onClick={() =>
-                                    shareOnTwitter(
+                                    handleShareOnTwitter(
                                       editableContent[index] || tweet.text
                                     )
                                   }
