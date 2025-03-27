@@ -11,8 +11,8 @@ const historyData = [
   {
     prompt: "Write a tweet about artificial intelligence",
     icon: <Bot className="h-5 w-5 text-blue-500" />,
-    options: [
-      {
+    options: [  
+      {   
         content: "🤖 AI isn't just changing the game - it's creating entirely new ones! From healthcare to space exploration, we're witnessing a revolution in human potential. What field do you think AI will transform next? #AI #FutureOfTech",
         metrics: {
           likes: "2.1K",

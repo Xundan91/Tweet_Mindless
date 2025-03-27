@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Bot, Settings, CreditCard } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 
-export function DashboardNav() {
+export function   DashboardNav() {
   const {data:session ,status} = useSession();
   const router = useRouter();
 

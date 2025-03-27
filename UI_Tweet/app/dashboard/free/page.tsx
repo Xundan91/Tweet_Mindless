@@ -71,8 +71,7 @@ export default function Free() {
 
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [isGlobeActive, setIsGlobeActive] = useState(false);
-  const [charCount, setCharCount] = useState(0);
-  const MAX_CHARS = 280;
+ 
 
   const {
     selectedImage,
