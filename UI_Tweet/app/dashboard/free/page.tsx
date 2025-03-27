@@ -72,6 +72,7 @@ export default function Free() {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [isGlobeActive, setIsGlobeActive] = useState(false);
  
+  const pickerRef = useRef<HTMLDivElement>(null);
 
   const {
     selectedImage,
@@ -83,6 +84,21 @@ export default function Free() {
   } = useImageUpload();
 
   const analyseImageUpload = useImageUpload();
+
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (pickerRef.current && !pickerRef.current.contains(event.target as Node)) {
+        setShowEmojiPicker(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []); 
   
 ///auth baby most Important 
   useEffect(() => {
@@ -113,11 +129,15 @@ export default function Free() {
     );
   }
 
+  
+
 
   const handleEmojiSelect = (emojiData: { emoji: string }) => {
     setPrompt((prev) => prev + emojiData.emoji);
     setShowEmojiPicker(false);
   };
+  
+
   /////api calls
 
   const postTweet = async (tweet: string) => {
@@ -381,7 +401,7 @@ export default function Free() {
                                 <Smile className="h-5 w-5 text-primary" />
                               </Button>
                               {showEmojiPicker && (
-                                <div className="absolute z-50 mt-2">
+                                <div ref={pickerRef} className="absolute z-50 mt-2">
                                   <EmojiPicker
                                     onEmojiClick={handleEmojiSelect}
                                   />
