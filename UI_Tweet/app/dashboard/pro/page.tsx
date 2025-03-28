@@ -39,8 +39,25 @@ export default function Pro() {
     //custom hook baby
     const {selectedImage , previewUrl , fileInputRef , handleImageChange, handleImageClick , clearImage} = useImageUpload()
     const analyseImageUpload = useImageUpload();
+    const pickerRef = useRef<HTMLDivElement>(null);
 
     /////////////////////////////////////////////
+
+    
+      useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+          if (pickerRef.current && !pickerRef.current.contains(event.target as Node)) {
+            setShowEmojiPicker(false);
+          }
+        };
+    
+        document.addEventListener("mousedown", handleClickOutside);
+        
+        return () => {
+          document.removeEventListener("mousedown", handleClickOutside);
+        };
+      }, []); 
+      /////
     //auth baby most Important 
     useEffect(() => {
       if (status === 'authenticated') {
@@ -73,6 +90,7 @@ export default function Pro() {
   const handleEmojiSelect = (emojiData :{emoji:string})=>{
     SetPrompt((prev)=>prev +emojiData.emoji);
     setShowEmojiPicker(false);
+
   }
 
   return (

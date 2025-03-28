@@ -19,7 +19,7 @@ export default function Setup() {
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="username">X (Twitter) Username</Label>
+                <Label htmlFor="username">X  Username</Label>
                 <Input id="username" placeholder="@username" />
               </div>
               
