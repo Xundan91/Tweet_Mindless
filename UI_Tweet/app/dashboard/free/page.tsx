@@ -481,56 +481,36 @@ export default function Free() {
                                         value="gpt-4"
                                         className="opacity-50"
                                       >
-                                        🧠 GPT-4 Turbo
+                                        🧠 GPT-4  (Premium)
                                       </SelectItem>
                                       <SelectItem
                                         disabled
                                         value="gpt-3.5"
                                         className="opacity-50"
                                       >
-                                        🤖 GPT-3.5
+                                        🤖 GPT-3.5 (Premium)
                                       </SelectItem>
-                                      <SelectItem
-                                        disabled
-                                        value="mistral"
-                                        className="opacity-50"
-                                      >
-                                        ⚡ Mistral-7B
-                                      </SelectItem>
+                                      
                                       <SelectItem
                                         disabled
                                         value="claude-3"
                                         className="opacity-50"
                                       >
-                                        📝 Claude 3 Sonnet
+                                        📝 Claude 3 (Premium)
                                       </SelectItem>
                                       <SelectItem
                                         disabled
                                         value="llama-3"
                                         className="opacity-50"
                                       >
-                                        🦙 LLaMA 3
-                                      </SelectItem>
-                                      <SelectItem
-                                        disabled
-                                        value="command-r"
-                                        className="opacity-50"
-                                      >
-                                        🚀 Command R+
-                                      </SelectItem>
-                                      <SelectItem
-                                        disabled
-                                        value="mixtral"
-                                        className="opacity-50"
-                                      >
-                                        🔗 Mixtral-8x7B
+                                        🦙 LLaMA 3 (Premium)
                                       </SelectItem>
                                       <SelectItem
                                         disabled
                                         value="deepseek"
                                         className="opacity-50"
                                       >
-                                        🔍 DeepSeek
+                                        🔍 DeepSeek (Premium)
                                       </SelectItem>
                                     </SelectContent>
                                   </Select>

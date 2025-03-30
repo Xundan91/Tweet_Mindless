@@ -54,7 +54,7 @@ export async function POST(req: Request) {
     const userClient = new TwitterApi({
       appKey: process.env.TWITTER_API_KEY!,
       appSecret: process.env.TWITTER_API_SECRET!,
-      accessToken :"AjHPdZjFqBu7L1TvfW2xQcah6A03JM3S4CUC1t5NZEWfA",
+      accessToken :"AjHPdZjFqxBu7L1TvfW2xQcah6A03JM3S4CUC1t5NZEWfA",
       accessSecret:"AjHPdZjFqBu7L1TvfW2xQcah6A03JM3S4CUC1t5NZEWfA",
     });
 
