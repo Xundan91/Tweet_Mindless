@@ -39,8 +39,8 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'user not found' }, { status: 404 });
         }
 
-        let planType;
-        let amount;
+        let planType: 'pro' | 'premium';
+        let amount: number;
 
         if (planName === 'Medium') {
             planType = 'pro';
