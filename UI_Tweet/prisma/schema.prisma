@@ -24,10 +24,41 @@ model User {
   type              type_user @default(free) // Default to free user
   twitterOauthToken  String?  // Access Token for Twitter API
   twitterOauthSecret String?  // Access Secret for Twitter API
+
+
+  subscription Subscription?
+  payments Payment[]
 }
 
 enum type_user {
   free 
   pro
   premium
+}
+
+model Payment{
+  id Int   @id @default(autoincrement())
+  userId Int
+  user User @relation(fields: [userId], references: [id])
+  amount Float 
+  currency String @default("INR")
+  razorpayPaymentId String
+  razorpayOrderId String
+  planType type_user
+  status String  
+  createdAt DateTime @default(now())
+}
+
+model Subscription{
+  id Int @id @default(autoincrement())
+  userId Int @unique
+  user User @relation(fields: [userId],references: [id])
+  planType type_user
+  startDate DateTime @default(now())
+  endDate DateTime?
+  status String @default("active")
+  autoRenew Boolean @default(true)
+  razorpaySubId String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
