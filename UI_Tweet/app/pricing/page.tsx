@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { DashboardNav } from "@/components/dashboard-nav";
 import { Check } from "lucide-react";
-import { useSession } from "next-auth/react";
+import { useSession ,signOut } from "next-auth/react";
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from "react";
 import Script from "next/script";
@@ -36,6 +36,7 @@ export default function Pricing() {
       router.push('/auth/signin');
       return;
     }
+    
 
     const userType = session?.user?.userType;
     
@@ -93,7 +94,8 @@ export default function Pricing() {
             
             if (verifyData.success) {
               alert("Payment successful!");
-              router.push(`/dashboard/${verifyData.user.type}`);
+              await signOut({ redirect: false });
+              router.push('/auth/signin');
             } else {
               throw new Error(verifyData.error || 'Payment verification failed');
             }

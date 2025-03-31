@@ -66,9 +66,9 @@ app.post("/generate-tweets", upload.single('image'), async (req:any, res:any) =>
       return res.status(400).json({ error: "Prompt is required" });
     }
 
-    let systemPrompt = `Generate exactly 4 engaging tweets in a ${tone} tone based on the following prompt: "${prompt}".  
-Each tweet should be concise, engaging, and suitable for posting on Twitter. Do not include any extra text, explanations, numbers, or formatting.  
-Output only the tweets, each separated by a newline.Tweet should not look like bot tweet its should look like tweet has been tweeted by real user not by bots `;
+    let systemPrompt = `Generate exactly 4 engaging tweets in a ${tone} tone based on the following prompt: "${prompt}".  Each tweet should be concise, engaging, and suitable for posting on Twitter. Do not include any extra text, explanations, numbers, or formatting.  
+    Output only the tweets, each separated by a newline.Tweet should not look like bot tweet its should look like tweet has been tweeted by real user not by bots `;
+    
 
     let requestData: any = {
       contents: [{ parts: [{ text: systemPrompt }] }]
