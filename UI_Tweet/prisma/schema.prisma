@@ -24,8 +24,7 @@ model User {
   type              type_user @default(free) // Default to free user
   twitterOauthToken  String?  // Access Token for Twitter API
   twitterOauthSecret String?  // Access Secret for Twitter API
-
-
+  api_Config        Api_Config[]
   subscription Subscription?
   payments Payment[]
 }
@@ -61,4 +60,16 @@ model Subscription{
   razorpaySubId String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+
+model Api_Config{
+  
+  id Int @id @default(autoincrement())
+  userId Int @unique
+  user User @relation(fields: [userId], references: [id])
+  userName String
+  Appkey String
+  AccessToken String
+  AccessSecret String
 }

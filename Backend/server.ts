@@ -8,11 +8,20 @@ import fs from "fs";
 import path from "path";
 import { v4 as uuidv4 } from "uuid";
 
+import Redis from "ioredis";
 dotenv.config();
+
 
 const app = express();
 app.use(express.json());
 app.use(cors());
+
+const redis = new Redis({
+  username : 'default',
+  host:  process.env.PASSWORD,
+  port:  parseInt("18776"),
+  password: process.env.HOST,
+});
 
 const storage = multer.diskStorage(
   {
@@ -57,6 +66,113 @@ const encodeImageToBase64 = (imagePath: string): string => {
   return imageBuffer.toString('base64');
 };
 
+const fetchUserTweetHistory = async (): Promise<string[]> => {
+  try {
+    const userInfo  = await twitterClient.v2.me()
+    const userId = userInfo.data.id;
+    
+    const cacheKey = `tweet-history:${userId}`;
+    const cachedHistory = await redis.get(cacheKey);
+    
+    if (cachedHistory) {
+      return JSON.parse(cachedHistory);
+    }
+    
+    const userTweets = await twitterClient.v2.userTimeline(userId, {
+      max_results: 15,
+      exclude: ['retweets', 'replies'],
+      "tweet.fields": ['text']
+    });
+    
+    const tweetTexts = userTweets.data.data.map(tweet => tweet.text);
+    
+    await redis.set(cacheKey, JSON.stringify(tweetTexts), 'EX', 1800);
+    
+    return tweetTexts;
+  } catch (error) {
+    console.error("Error fetching user tweet history:", error);
+    return [];
+  }
+};
+
+
+
+app.post("/generate-tweet-with-history", upload.single('image'), async (req: any, res: any) => {
+  try {
+    const prompt = req.body.prompt;
+    const tone = req.body.tone;
+    
+    if (!prompt) {
+      return res.status(400).json({ error: "Prompt is required" });
+    }
+    
+    const tweetHistory = await fetchUserTweetHistory();
+    const historyText = tweetHistory.length > 0 
+      ? `\n\nHere are the user's last ${tweetHistory.length} tweets for context:\n${tweetHistory.join('\n')}`
+      : "\n\nNo tweet history available for this user.";
+    
+    let systemPrompt = `Generate exactly 4 engaging tweets in a ${tone} tone based on the following prompt: "${prompt}".
+    Each tweet should be concise, engaging, and suitable for posting on Twitter.
+    The tweets should match the user's existing tweet style and tone based on their tweet history.
+    Do not include any extra text, explanations, numbers, or formatting.
+    Output only the tweets, each separated by a newline.
+    Tweet should not look like bot tweet its should look like tweet has been tweeted by real user not by bots.${historyText}`;
+    
+    let requestData: any = {
+      contents: [{ parts: [{ text: systemPrompt }] }]
+    };
+
+    if (req.file) {
+      const imageBase64 = encodeImageToBase64(req.file.path);
+      const mimeType = req.file.mimetype;
+      
+      systemPrompt += ` Incorporate relevant details from the provided image while keeping the tweets engaging and concise. Ensure that only 4 tweets are generated with no additional text.`;
+      
+      requestData = {
+        contents: [{
+          parts: [
+            { text: systemPrompt },
+            {
+              inline_data: {
+                mime_type: mimeType,
+                data: imageBase64
+              }
+            }
+          ]
+        }]
+      };
+    }
+
+    const response = await axios.post(
+      `${GEMINI_API_URL}?key=${GEMINI_API_KEY}`,
+      requestData,
+      { headers: { "Content-Type": "application/json" } }
+    );
+
+    const generatedText = response.data.candidates[0].content.parts[0].text;
+    
+    const tweets = generatedText
+      .split("\n")
+      .filter((text: string) => text.trim() !== "")
+      .slice(0, 4)
+      .map((text: string, index: number) => ({ id: index + 1, text: text.trim() }));
+
+    if (req.file) {
+      fs.unlinkSync(req.file.path);
+    }
+
+    res.json({ tweets });
+  } catch (error: any) {
+    console.error("Error generating tweets with history:", error.response?.data || error);
+    
+    if (req.file && fs.existsSync(req.file.path)) {
+      fs.unlinkSync(req.file.path);
+    }
+    
+    res.status(500).json({ error: "Error generating tweets with history" });
+  }
+});
+
 app.post("/generate-tweets", upload.single('image'), async (req:any, res:any) => {
   try {
     const prompt = req.body.prompt;
@@ -68,13 +184,12 @@ app.post("/generate-tweets", upload.single('image'), async (req:any, res:any) =>
 
     let systemPrompt = `Generate exactly 4 engaging tweets in a ${tone} tone based on the following prompt: "${prompt}".  Each tweet should be concise, engaging, and suitable for posting on Twitter. Do not include any extra text, explanations, numbers, or formatting.  
     Output only the tweets, each separated by a newline.Tweet should not look like bot tweet its should look like tweet has been tweeted by real user not by bots `;
-    
+
 
     let requestData: any = {
       contents: [{ parts: [{ text: systemPrompt }] }]
     };
 
-    // Add image to request if provided
     if (req.file) {
       const imageBase64 = encodeImageToBase64(req.file.path);
       const mimeType = req.file.mimetype;
