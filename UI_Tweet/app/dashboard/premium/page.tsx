@@ -123,7 +123,10 @@ if (status === 'loading' || (status === 'authenticated' && session?.user?.userTy
   <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
 </div>
 }
-  
+  const emojiupdate = (emojiData: { emoji: string }) => {
+    setPrompt((prev) => prev +  emojiData.emoji);
+    setShowEmojiPicker(false);
+  };
 
 
   const handleEmojiSelect = (emojiData: { emoji: string }) => {
