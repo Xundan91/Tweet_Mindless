@@ -142,7 +142,6 @@ if (status === 'loading' || (status === 'authenticated' && session?.user?.userTy
       setIsGenerating(true);
 
       await tweetService.postTweet(tweet, selectedImage || undefined);
-
       toast({
         title: "Tweet Posted!",
         description: "Your tweet was posted successfully.",

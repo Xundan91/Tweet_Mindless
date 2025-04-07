@@ -73,6 +73,7 @@ const fetchUserTweetHistory = async (): Promise<string[]> => {
     
     const cacheKey = `tweet-history:${userId}`;
     const cachedHistory = await redis.get(cacheKey);
+    const cachedHis = await redis.get(cacheKey);
     
     if (cachedHistory) {
       return JSON.parse(cachedHistory);
