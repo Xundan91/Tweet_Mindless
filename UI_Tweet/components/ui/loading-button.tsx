@@ -4,7 +4,7 @@ import { Button } from "./button";
 import { motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
 
-interface LoadingButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface LoadingButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   loading?: boolean;
   children: React.ReactNode;
 }
