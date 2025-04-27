@@ -243,37 +243,37 @@ app.post("/generate-tweets", upload.single('image'), async (req:any, res:any) =>
 });
 
 
-app.post("/post-tweet-paid", upload.single('image'), async (req:any, res:any) => {
-  try {
-    const { text } = req.body;
-    if (!text) return res.status(400).json({ error: "Tweet text is required" });
+// app.post("/post-tweet-paid", upload.single('image'), async (req:any, res:any) => {
+//   try {
+//     const { text } = req.body;
+//     if (!text) return res.status(400).json({ error: "Tweet text is required" });
 
-    let tweet;
+//     let tweet;
 
-    if (req.file) {
-      const mediaId = await twitterClient.v1.uploadMedia(req.file.path);
+//     if (req.file) {
+//       const mediaId = await twitterClient.v1.uploadMedia(req.file.path);
       
-      tweet = await twitterClient.v2.tweet(text, {
-        media: { media_ids: [mediaId] }
-      });
+//       tweet = await twitterClient.v2.tweet(text, {
+//         media: { media_ids: [mediaId] }
+//       });
       
-      fs.unlinkSync(req.file.path);
-    } else {
-      tweet = await twitterClient.v2.tweet(text);
-    }
+//       fs.unlinkSync(req.file.path);
+//     } else {
+//       tweet = await twitterClient.v2.tweet(text);
+//     }
 
-    console.log("Tweet posted successfully!", tweet);
-    res.json({ message: "Tweet posted successfully!", tweet });
-  } catch (error) {
-    console.error("Error posting tweet:", error);
+//     console.log("Tweet posted successfully!", tweet);
+//     res.json({ message: "Tweet posted successfully!", tweet });
+//   } catch (error) {
+//     console.error("Error posting tweet:", error);
     
-    if (req.file && fs.existsSync(req.file.path)) {
-      fs.unlinkSync(req.file.path);
-    }
+//     if (req.file && fs.existsSync(req.file.path)) {
+//       fs.unlinkSync(req.file.path);
+//     }
 
-    res.status(500).json({ error: "Error posting tweet" });
-  }
-});
+//     res.status(500).json({ error: "Error posting tweet" });
+//   }
+// });
 
 app.post("/post-tweet", upload.single('image'), async (req:any, res:any) => {
   try {
