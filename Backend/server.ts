@@ -1,5 +1,4 @@
 import express from "express";
-import axios from "axios";
 import dotenv from "dotenv";
 import cors from "cors";
 import { TwitterApi } from "twitter-api-v2";
@@ -7,6 +6,7 @@ import multer from "multer";
 import fs from "fs";
 import path from "path";
 import { v4 as uuidv4 } from "uuid";
+import { GoogleGenAI } from "@google/genai";
 
 import Redis from "ioredis";
 dotenv.config();
@@ -50,8 +50,31 @@ const upload = multer({
   }
 });
 
-const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
+const GEMINI_MODEL = "gemini-2.0-flash";
+
+const generateGeminiText = async (
+  prompt: string,
+  image?: { mimeType: string; data: string }
+): Promise<string> => {
+  const parts: any[] = [{ text: prompt }];
+  if (image) {
+    parts.push({
+      inlineData: {
+        mimeType: image.mimeType,
+        data: image.data,
+      },
+    });
+  }
+
+  const response = await ai.models.generateContent({
+    model: GEMINI_MODEL,
+    contents: [{ role: "user", parts }],
+  });
+
+  return response.text || "";
+};
 
 const twitterClient = new TwitterApi({
   appKey: process.env.APPKEY as string,
@@ -119,9 +142,7 @@ app.post("/generate-tweet-with-history", upload.single('image'), async (req: any
     Output only the tweets, each separated by a newline.
     Tweet should not look like bot tweet its should look like tweet has been tweeted by real user not by bots.${historyText}`;
     
-    let requestData: any = {
-      contents: [{ parts: [{ text: systemPrompt }] }]
-    };
+    let imagePayload: { mimeType: string; data: string } | undefined;
 
     if (req.file) {
       const imageBase64 = encodeImageToBase64(req.file.path);
@@ -129,28 +150,13 @@ app.post("/generate-tweet-with-history", upload.single('image'), async (req: any
       
       systemPrompt += ` Incorporate relevant details from the provided image while keeping the tweets engaging and concise. Ensure that only 4 tweets are generated with no additional text.`;
       
-      requestData = {
-        contents: [{
-          parts: [
-            { text: systemPrompt },
-            {
-              inline_data: {
-                mime_type: mimeType,
-                data: imageBase64
-              }
-            }
-          ]
-        }]
+      imagePayload = {
+        mimeType,
+        data: imageBase64,
       };
     }
 
-    const response = await axios.post(
-      `${GEMINI_API_URL}?key=${GEMINI_API_KEY}`,
-      requestData,
-      { headers: { "Content-Type": "application/json" } }
-    );
-
-    const generatedText = response.data.candidates[0].content.parts[0].text;
+    const generatedText = await generateGeminiText(systemPrompt, imagePayload);
     
     const tweets = generatedText
       .split("\n")
@@ -187,9 +193,7 @@ app.post("/generate-tweets", upload.single('image'), async (req:any, res:any) =>
     Output only the tweets, each separated by a newline.Tweet should not look like bot tweet its should look like tweet has been tweeted by real user not by bots `;
 
 
-    let requestData: any = {
-      contents: [{ parts: [{ text: systemPrompt }] }]
-    };
+    let imagePayload: { mimeType: string; data: string } | undefined;
 
     if (req.file) {
       const imageBase64 = encodeImageToBase64(req.file.path);
@@ -197,28 +201,13 @@ app.post("/generate-tweets", upload.single('image'), async (req:any, res:any) =>
       
       systemPrompt += ` Incorporate relevant details from the provided image while keeping the tweets engaging and concise. Ensure that only 4 tweets are generated with no additional text.`;
       
-      requestData = {
-        contents: [{
-          parts: [
-            { text: systemPrompt },
-            {
-              inline_data: {
-                mime_type: mimeType,
-                data: imageBase64
-              }
-            }
-          ]
-        }]
+      imagePayload = {
+        mimeType,
+        data: imageBase64,
       };
     }
 
-    const response = await axios.post(
-      `${GEMINI_API_URL}?key=${GEMINI_API_KEY}`,
-      requestData,
-      { headers: { "Content-Type": "application/json" } }
-    );
-
-    const generatedText = response.data.candidates[0].content.parts[0].text;
+    const generatedText = await generateGeminiText(systemPrompt, imagePayload);
     
     const tweets = generatedText
       .split("\n")
@@ -359,7 +348,7 @@ app.post("/analyze-tweet", upload.single("image"), async (req: any, res: any) =>
       **Important:** Only return valid JSON, without extra text or explanations.
     `;
 
-    let requestData: any = { contents: [{ parts: [{ text: systemPrompt }] }] };
+    let imagePayload: { mimeType: string; data: string } | undefined;
 
     // If image is provided, encode it and include in the request
 
@@ -367,23 +356,15 @@ app.post("/analyze-tweet", upload.single("image"), async (req: any, res: any) =>
       const imageBase64 = encodeImageToBase64(req.file.path);
       const mimeType = req.file.mimetype;
 
-      requestData.contents[0].parts.push({
-        inline_data: {
-          mime_type: mimeType,
-          data: imageBase64,
-        },
-      });
+      imagePayload = {
+        mimeType,
+        data: imageBase64,
+      };
 
       systemPrompt += ` The tweet contains an image. Include insights on how the image enhances or detracts from the tweet's effectiveness.`;
     }
 
-    const response = await axios.post(
-      `${GEMINI_API_URL}?key=${GEMINI_API_KEY}`,
-      requestData,
-      { headers: { "Content-Type": "application/json" } }
-    );
-
-    const generatedText = response.data.candidates[0].content.parts[0].text;
+    const generatedText = await generateGeminiText(systemPrompt, imagePayload);
     
     // Extract JSON from response
     const jsonStartIndex = generatedText.indexOf("{");
