@@ -51,8 +51,20 @@ const upload = multer({
 });
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+if (!GEMINI_API_KEY) {
+  throw new Error("Missing GEMINI_API_KEY in environment variables");
+}
 const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
-const GEMINI_MODEL = "gemini-2.0-flash";
+const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-3-flash-preview";
+
+const getErrorMessage = (error: any): string => {
+  return (
+    error?.message ||
+    error?.error?.message ||
+    error?.statusText ||
+    "Unknown error"
+  );
+};
 
 const generateGeminiText = async (
   prompt: string,
@@ -73,7 +85,12 @@ const generateGeminiText = async (
     contents: [{ role: "user", parts }],
   });
 
-  return response.text || "";
+  const text = response.text?.trim();
+  if (!text) {
+    throw new Error("Gemini returned an empty response");
+  }
+
+  return text;
 };
 
 const twitterClient = new TwitterApi({
@@ -170,13 +187,13 @@ app.post("/generate-tweet-with-history", upload.single('image'), async (req: any
 
     res.json({ tweets });
   } catch (error: any) {
-    console.error("Error generating tweets with history:", error.response?.data || error);
+    console.error("Error generating tweets with history:", getErrorMessage(error), error);
     
     if (req.file && fs.existsSync(req.file.path)) {
       fs.unlinkSync(req.file.path);
     }
     
-    res.status(500).json({ error: "Error generating tweets with history" });
+    res.status(500).json({ error: `Error generating tweets with history: ${getErrorMessage(error)}` });
   }
 });
 
@@ -221,13 +238,13 @@ app.post("/generate-tweets", upload.single('image'), async (req:any, res:any) =>
 
     res.json({ tweets });
   } catch (error: any) {
-    console.error("Error generating tweets:", error.response?.data || error);
+    console.error("Error generating tweets:", getErrorMessage(error), error);
     
     if (req.file && fs.existsSync(req.file.path)) {
       fs.unlinkSync(req.file.path);
     }
     
-    res.status(500).json({ error: "Error generating tweets" });
+    res.status(500).json({ error: `Error generating tweets: ${getErrorMessage(error)}` });
   }
 });
 
@@ -379,13 +396,13 @@ app.post("/analyze-tweet", upload.single("image"), async (req: any, res: any) =>
 
     res.json(analysisData);
   } catch (error: any) {
-    console.error("Error analyzing tweet:", error.response?.data || error);
+    console.error("Error analyzing tweet:", getErrorMessage(error), error);
 
     if (req.file && fs.existsSync(req.file.path)) {
       fs.unlinkSync(req.file.path);
     }
 
-    res.status(500).json({ error: "Error analyzing tweet" });
+    res.status(500).json({ error: `Error analyzing tweet: ${getErrorMessage(error)}` });
   }
 });
 
